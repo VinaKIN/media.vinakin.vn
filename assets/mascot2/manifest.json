@@ -1,0 +1,709 @@
+{
+ "phien_ban": 1,
+ "nguon": "02-INPUT/02-hinh-anh/masco vinakin (ảnh gốc giữ nguyên, không sửa)",
+ "luu_y": [
+  "Ảnh trong suốt (nen = trong_suot) đặt được trên cả nền sáng và nền tối. Ảnh nen = toi hoặc canh có nền riêng, đặt trong khung bo tròn.",
+  "Ảnh có chữ in sẵn ghi ở trường chu. Chữ trên ảnh minh họa (số, phần trăm) chỉ là hình vẽ, không phải số liệu thật.",
+  "Thêm ảnh: bỏ PNG vào thư mục nhóm trong 02-INPUT rồi chạy lại nap-mascot.py."
+ ],
+ "nhom": {
+  "onb": "Làm quen giao diện",
+  "mkt": "Marketing, bán hàng",
+  "cd": "Quản trị chiến dịch",
+  "brand": "Nhận diện thương hiệu",
+  "nganh": "Đặc trưng ngành nghề",
+  "kp": "Khai phá và phân tích dữ liệu"
+ },
+ "anh": [
+  {
+   "id": "vk-onb-01",
+   "nhom": "onb",
+   "goc": "Cheerful Robot Account Setup Mascot.png",
+   "mo_ta": "Cầm bảng điền thông tin, thiết lập tài khoản",
+   "chu_tren_anh": "Thiết lập tài khoản ngay nhé!",
+   "dung_cho": [
+    "ket-noi",
+    "onboarding"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1214,
+    1295
+   ],
+   "nen": "trong_suot",
+   "file": "onb/vk-onb-01"
+  },
+  {
+   "id": "vk-onb-02",
+   "nhom": "onb",
+   "goc": "Cheerful Robot Presents VINAKIN Dashboard.png",
+   "mo_ta": "Giới thiệu giao diện dashboard, chỉ vào menu Tổng quan",
+   "chu_tren_anh": "Chào mừng bạn!",
+   "dung_cho": [
+    "man-chao",
+    "onboarding"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1536,
+    1024
+   ],
+   "nen": "trong_suot",
+   "file": "onb/vk-onb-02"
+  },
+  {
+   "id": "vk-onb-03",
+   "nhom": "onb",
+   "goc": "Cheerful Vinakin Robot Mascot.png",
+   "mo_ta": "Vẫy tay chào, cầm máy tính bảng có biểu đồ",
+   "chu_tren_anh": "",
+   "dung_cho": [
+    "man-chao",
+    "onboarding"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1024,
+    1536
+   ],
+   "nen": "trong_suot",
+   "dai_dien": true,
+   "file": "onb/vk-onb-03"
+  },
+  {
+   "id": "vk-onb-04",
+   "nhom": "onb",
+   "goc": "Chibi AI Mascot in Holographic Interface.png",
+   "mo_ta": "Dang tay giữa các bảng hologram dữ liệu",
+   "chu_tren_anh": "",
+   "dung_cho": [
+    "man-chao",
+    "phan-tich"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1214,
+    1295
+   ],
+   "nen": "trong_suot",
+   "file": "onb/vk-onb-04"
+  },
+  {
+   "id": "vk-onb-05",
+   "nhom": "onb",
+   "goc": "Winking Robot Press Start Mascot.png",
+   "mo_ta": "Nháy mắt, bấm nút Bắt đầu",
+   "chu_tren_anh": "BẮT ĐẦU START",
+   "dung_cho": [
+    "onboarding",
+    "tour"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1214,
+    1295
+   ],
+   "nen": "trong_suot",
+   "file": "onb/vk-onb-05"
+  },
+  {
+   "id": "vk-mkt-01",
+   "nhom": "mkt",
+   "goc": "Cheerful Robot Gift Mascot.png",
+   "mo_ta": "Ôm hộp quà nơ đỏ",
+   "chu_tren_anh": "",
+   "dung_cho": [
+    "cam-on",
+    "thanh-cong"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1024,
+    1536
+   ],
+   "nen": "trong_suot",
+   "dai_dien": true,
+   "file": "mkt/vk-mkt-01"
+  },
+  {
+   "id": "vk-mkt-02",
+   "nhom": "mkt",
+   "goc": "Cheerful VK Robot Mascot Announcing.png",
+   "mo_ta": "Cầm loa thông báo, vẫy tay",
+   "chu_tren_anh": "",
+   "dung_cho": [
+    "thong-bao"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1024,
+    1536
+   ],
+   "nen": "trong_suot",
+   "dai_dien": true,
+   "file": "mkt/vk-mkt-02"
+  },
+  {
+   "id": "vk-mkt-03",
+   "nhom": "mkt",
+   "goc": "Chibi Robot’s Wow Sale Surprise.png",
+   "mo_ta": "Ngạc nhiên, cầm bảng giá siêu hời",
+   "chu_tren_anh": "WOW! GIÁ SIÊU HỜI",
+   "dung_cho": [],
+   "cho_phep": false,
+   "ly_do": "Có chữ về giá và khuyến mãi (GIÁ SIÊU HỜI), theo ranh đỏ giá không đưa vào giao diện",
+   "nen": "khong_nap"
+  },
+  {
+   "id": "vk-mkt-04",
+   "nhom": "mkt",
+   "goc": "Friendly 24_7 Robot Helpdesk Mascot.png",
+   "mo_ta": "Nghe điện thoại, cầm sổ ghi chú, hỗ trợ 24/7",
+   "chu_tren_anh": "Alo nghe đây! 24/7",
+   "dung_cho": [
+    "tro-ly",
+    "cham-soc"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1024,
+    1536
+   ],
+   "nen": "trong_suot",
+   "file": "mkt/vk-mkt-04"
+  },
+  {
+   "id": "vk-mkt-05",
+   "nhom": "mkt",
+   "goc": "Kawaii Robot Holding Blank Sign.png",
+   "mo_ta": "Cầm bảng trắng để trống, dùng cho lời nhắn tùy chọn",
+   "chu_tren_anh": "",
+   "dung_cho": [
+    "trang-trong",
+    "thong-bao"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1024,
+    1536
+   ],
+   "nen": "trong_suot",
+   "dai_dien": true,
+   "file": "mkt/vk-mkt-05"
+  },
+  {
+   "id": "vk-mkt-06",
+   "nhom": "mkt",
+   "goc": "Polite Robot Thank You Mascot.png",
+   "mo_ta": "Chắp tay cảm ơn, nhắm mắt cười",
+   "chu_tren_anh": "Thank You!",
+   "dung_cho": [
+    "cam-on",
+    "thanh-cong"
+   ],
+   "cho_phep": true,
+   "ghi_chu": "Chữ Thank You màu xanh đậm, khó đọc trên nền tối, ưu tiên nền sáng",
+   "kich_thuoc_goc": [
+    1024,
+    1536
+   ],
+   "nen": "trong_suot",
+   "dai_dien": true,
+   "file": "mkt/vk-mkt-06"
+  },
+  {
+   "id": "vk-mkt-07",
+   "nhom": "mkt",
+   "goc": "Robot ký phiếu bảo hành dài hạn.png",
+   "mo_ta": "Ký phiếu bảo hành dài hạn",
+   "chu_tren_anh": "PHIẾU BẢO HÀNH DÀI HẠN",
+   "dung_cho": [
+    "cham-soc",
+    "bao-hanh"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1024,
+    1536
+   ],
+   "nen": "trong_suot",
+   "file": "mkt/vk-mkt-07"
+  },
+  {
+   "id": "vk-mkt-08",
+   "nhom": "mkt",
+   "goc": "Sweaty Happy Robot Mascot Sticker.png",
+   "mo_ta": "Ngồi, lau mồ hôi, giơ hai ngón, vừa xong việc nặng",
+   "chu_tren_anh": "",
+   "dung_cho": [
+    "hoan-thanh"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1254,
+    1254
+   ],
+   "nen": "trong_suot",
+   "file": "mkt/vk-mkt-08"
+  },
+  {
+   "id": "vk-mkt-09",
+   "nhom": "mkt",
+   "goc": "Winking Robot Mascot Gives Approval.png",
+   "mo_ta": "Nháy mắt, ra dấu OK, dấu tích xanh",
+   "chu_tren_anh": "OK, DUYỆT!",
+   "dung_cho": [
+    "duyet-xong",
+    "thanh-cong"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1024,
+    1536
+   ],
+   "nen": "trong_suot",
+   "file": "mkt/vk-mkt-09"
+  },
+  {
+   "id": "vk-cd-01",
+   "nhom": "cd",
+   "goc": "Chibi Robot Real-Time Growth Analytics.png",
+   "mo_ta": "Nhìn ống nhòm, bảng số liệu tăng trưởng thời gian thực",
+   "chu_tren_anh": "Dữ liệu thực tế (số trên ảnh chỉ là minh họa)",
+   "dung_cho": [
+    "analytics",
+    "phan-tich"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1536,
+    1024
+   ],
+   "nen": "trong_suot",
+   "file": "cd/vk-cd-01"
+  },
+  {
+   "id": "vk-cd-02",
+   "nhom": "cd",
+   "goc": "Cute Robot Planning Strategy.png",
+   "mo_ta": "Ngồi bàn, lập kế hoạch bốn bước trên bảng",
+   "chu_tren_anh": "KẾ HOẠCH (minh họa)",
+   "dung_cho": [
+    "ke-hoach",
+    "lich"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1536,
+    1024
+   ],
+   "nen": "trong_suot",
+   "file": "cd/vk-cd-02"
+  },
+  {
+   "id": "vk-cd-03",
+   "nhom": "cd",
+   "goc": "Futuristic Automated Reporting Mascot.png",
+   "mo_ta": "Báo cáo tự động, bánh răng và laptop báo cáo",
+   "chu_tren_anh": "Báo cáo tự động (minh họa)",
+   "dung_cho": [
+    "bao-cao"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1536,
+    1024
+   ],
+   "nen": "canh",
+   "file": "cd/vk-cd-03"
+  },
+  {
+   "id": "vk-cd-04",
+   "nhom": "cd",
+   "goc": "Mascot Launch Activation Button.png",
+   "mo_ta": "Bấm nút Kích hoạt, tên lửa phóng",
+   "chu_tren_anh": "KÍCH HOẠT, PUBLISH (minh họa)",
+   "dung_cho": [
+    "ra-mat",
+    "dang-bai"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1536,
+    1024
+   ],
+   "nen": "trong_suot",
+   "file": "cd/vk-cd-04"
+  },
+  {
+   "id": "vk-cd-05",
+   "nhom": "cd",
+   "goc": "VINAKIN Budgeting Robot Mascot.png",
+   "mo_ta": "Chia ngân sách, đồng xu và biểu đồ tròn",
+   "chu_tren_anh": "Phân chia ngân sách (số trên ảnh chỉ là minh họa)",
+   "dung_cho": [
+    "ngan-sach",
+    "chi-phi"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1536,
+    1024
+   ],
+   "nen": "trong_suot",
+   "file": "cd/vk-cd-05"
+  },
+  {
+   "id": "vk-cd-06",
+   "nhom": "cd",
+   "goc": "VINAKIN Futuristic Mascot Hero.png",
+   "mo_ta": "Giơ ngón cái, chỉ tay, tư thế anh hùng",
+   "chu_tren_anh": "",
+   "dung_cho": [
+    "hero",
+    "dashboard"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1536,
+    1024
+   ],
+   "nen": "trong_suot",
+   "file": "cd/vk-cd-06"
+  },
+  {
+   "id": "vk-cd-07",
+   "nhom": "cd",
+   "goc": "VINAKIN Robot Presenting Glowing Automation Gear.png",
+   "mo_ta": "Giơ bánh răng tự động hóa phát sáng",
+   "chu_tren_anh": "",
+   "dung_cho": [
+    "tu-dong",
+    "cai-dat"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1536,
+    1024
+   ],
+   "nen": "trong_suot",
+   "file": "cd/vk-cd-07"
+  },
+  {
+   "id": "vk-brand-01",
+   "nhom": "brand",
+   "goc": "Mascot robot suy tư với bản vẽ hologram Mascot đang nhìn chăm chú vào tấm bản vẽ hologram, sau đó dùng ngón tay chạm nhẹ vào màn hình. Bản vẽ 3D l.png",
+   "mo_ta": "Chống cằm suy nghĩ, cầm bản vẽ hologram",
+   "chu_tren_anh": "",
+   "dung_cho": [
+    "dang-suy-nghi",
+    "tro-ly"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1024,
+    1536
+   ],
+   "nen": "trong_suot",
+   "dai_dien": true,
+   "file": "brand/vk-brand-01"
+  },
+  {
+   "id": "vk-brand-02",
+   "nhom": "brand",
+   "goc": "Mascot đứng ở tư thế chính diện, tay phải vẫy chào thân thiện với nụ cười rạng rỡ, trong khi tay trái nâng nhẹ các thanh nhôm định hình lên để kho.png",
+   "mo_ta": "Vẫy chào, cầm thanh nhôm định hình",
+   "chu_tren_anh": "",
+   "dung_cho": [
+    "hero",
+    "nganh"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1024,
+    1536
+   ],
+   "nen": "trong_suot",
+   "dai_dien": true,
+   "file": "brand/vk-brand-02"
+  },
+  {
+   "id": "vk-brand-03",
+   "nhom": "brand",
+   "goc": "Mascot robot VK cầm bản thiết kế hologram.png",
+   "mo_ta": "Giơ ngón trỏ, cầm bản thiết kế hologram",
+   "chu_tren_anh": "",
+   "dung_cho": [
+    "hero",
+    "thiet-ke"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1024,
+    1536
+   ],
+   "nen": "trong_suot",
+   "file": "brand/vk-brand-03"
+  },
+  {
+   "id": "vk-brand-04",
+   "nhom": "brand",
+   "goc": "Mascot robot xanh cầm máy tính bảng.png",
+   "mo_ta": "Nháy mắt, giơ ngón cái, cầm máy tính bảng",
+   "chu_tren_anh": "",
+   "dung_cho": [
+    "thanh-cong"
+   ],
+   "cho_phep": true,
+   "ghi_chu": "Viền ảnh gốc bị răng cưa trên nền đen, không đưa vào xoay vòng",
+   "kich_thuoc_goc": [
+    1182,
+    1330
+   ],
+   "nen": "trong_suot",
+   "file": "brand/vk-brand-04"
+  },
+  {
+   "id": "vk-brand-05",
+   "nhom": "brand",
+   "goc": "Mascot Vinakin tạo hình trái tim 3D.png",
+   "mo_ta": "Hai tay tạo hình trái tim, tim bay",
+   "chu_tren_anh": "",
+   "dung_cho": [
+    "cam-on",
+    "hero"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1024,
+    1536
+   ],
+   "nen": "trong_suot",
+   "dai_dien": true,
+   "file": "brand/vk-brand-05"
+  },
+  {
+   "id": "vk-brand-06",
+   "nhom": "brand",
+   "goc": "Mascot Vinakin xin lỗi đáng yêu.png",
+   "mo_ta": "Xin lỗi, tay đặt lên ngực, vẻ áy náy",
+   "chu_tren_anh": "",
+   "dung_cho": [
+    "loi",
+    "xin-loi"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1024,
+    1536
+   ],
+   "nen": "trong_suot",
+   "file": "brand/vk-brand-06"
+  },
+  {
+   "id": "vk-brand-07",
+   "nhom": "brand",
+   "goc": "Robot mascot VINAKIN giơ ngón cái cùng cúp sao vàng.png",
+   "mo_ta": "Giơ ngón cái, cầm cúp sao vàng",
+   "chu_tren_anh": "",
+   "dung_cho": [
+    "ky-luc",
+    "dat-muc-tieu"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1024,
+    1536
+   ],
+   "nen": "trong_suot",
+   "file": "brand/vk-brand-07"
+  },
+  {
+   "id": "vk-brand-08",
+   "nhom": "brand",
+   "goc": "Robot mascot Vinakin VK siêu anh hùng.png",
+   "mo_ta": "Tư thế siêu anh hùng, áo choàng phát sáng",
+   "chu_tren_anh": "",
+   "dung_cho": [
+    "hero"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1024,
+    1536
+   ],
+   "nen": "trong_suot",
+   "file": "brand/vk-brand-08"
+  },
+  {
+   "id": "vk-brand-09",
+   "nhom": "brand",
+   "goc": "Robot mascot VINAKIN vui vẻ vẫy tay.png",
+   "mo_ta": "Vui vẻ vẫy tay chào",
+   "chu_tren_anh": "",
+   "dung_cho": [
+    "chao",
+    "hero"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1024,
+    1536
+   ],
+   "nen": "trong_suot",
+   "dai_dien": true,
+   "file": "brand/vk-brand-09"
+  },
+  {
+   "id": "vk-brand-10",
+   "nhom": "brand",
+   "goc": "Robot trình bày báo cáo VINAKIN.png",
+   "mo_ta": "Cầm máy tính bảng, trình bày bảng báo cáo",
+   "chu_tren_anh": "BÁO CÁO",
+   "dung_cho": [
+    "bao-cao",
+    "analytics"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1024,
+    1536
+   ],
+   "nen": "trong_suot",
+   "dai_dien": true,
+   "file": "brand/vk-brand-10"
+  },
+  {
+   "id": "vk-brand-11",
+   "nhom": "brand",
+   "goc": "Robot VINAKIN giơ ngón cái tin cậy.png",
+   "mo_ta": "Giơ ngón cái, tay chống hông, khiên tích xanh",
+   "chu_tren_anh": "",
+   "dung_cho": [
+    "thanh-cong",
+    "hero"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1024,
+    1536
+   ],
+   "nen": "trong_suot",
+   "dai_dien": true,
+   "file": "brand/vk-brand-11"
+  },
+  {
+   "id": "vk-brand-12",
+   "nhom": "brand",
+   "goc": "Robot Vinakin với khiên kiểm chứng.png",
+   "mo_ta": "Khoanh tay, khiên kiểm chứng bên cạnh",
+   "chu_tren_anh": "",
+   "dung_cho": [
+    "kiem-chung",
+    "bao-mat"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1024,
+    1535
+   ],
+   "nen": "trong_suot",
+   "dai_dien": true,
+   "file": "brand/vk-brand-12"
+  },
+  {
+   "id": "vk-brand-13",
+   "nhom": "brand",
+   "goc": "Robot xanh giới thiệu khoảng trống sáng tạo.png",
+   "mo_ta": "Giơ tay mời vào khoảng trống nội dung",
+   "chu_tren_anh": "",
+   "dung_cho": [
+    "trang-trong",
+    "gioi-thieu"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1024,
+    1536
+   ],
+   "nen": "trong_suot",
+   "dai_dien": true,
+   "file": "brand/vk-brand-13"
+  },
+  {
+   "id": "vk-nganh-01",
+   "nhom": "nganh",
+   "goc": "Kỹ sư robot đo đạc chính xác-2.png",
+   "mo_ta": "Kỹ sư kéo thước dây, mắt nheo đo đạc",
+   "chu_tren_anh": "",
+   "dung_cho": [
+    "nganh",
+    "ky-thuat"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1024,
+    1536
+   ],
+   "nen": "trong_suot",
+   "dai_dien": true,
+   "file": "nganh/vk-nganh-01"
+  },
+  {
+   "id": "vk-nganh-02",
+   "nhom": "nganh",
+   "goc": "Mascot VINAKIN lắp cửa nhôm hiện đại.png",
+   "mo_ta": "Lắp cửa nhôm kính, búa cao su, bảng Romadio phía sau",
+   "chu_tren_anh": "CỬA NHÔM ROMADIO",
+   "dung_cho": [
+    "nganh",
+    "lap-dat"
+   ],
+   "cho_phep": true,
+   "thuong_hieu": "romadio",
+   "kich_thuoc_goc": [
+    1024,
+    1536
+   ],
+   "nen": "canh",
+   "file": "nganh/vk-nganh-02"
+  },
+  {
+   "id": "vk-nganh-03",
+   "nhom": "nganh",
+   "goc": "Robot kỹ sư đo lường VINAKIN-1.png",
+   "mo_ta": "Kỹ sư cầm thước dây trước ngực",
+   "chu_tren_anh": "",
+   "dung_cho": [
+    "nganh",
+    "ky-thuat"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    1024,
+    1536
+   ],
+   "nen": "trong_suot",
+   "dai_dien": true,
+   "file": "nganh/vk-nganh-03"
+  },
+  {
+   "id": "vk-brand-14",
+   "nhom": "brand",
+   "goc": "Gemini_Generated_Image_c5n95xc5n95xc5n9.png",
+   "mo_ta": "Vẫy chào thân thiện, tay kia nâng các thanh nhôm định hình lên khoe, nhôm lóe sáng",
+   "chu_tren_anh": "",
+   "dung_cho": [
+    "chao",
+    "nganh"
+   ],
+   "cho_phep": true,
+   "kich_thuoc_goc": [
+    843,
+    1264
+   ],
+   "nen": "trong_suot",
+   "file": "brand/vk-brand-14"
+  }
+ ]
+}

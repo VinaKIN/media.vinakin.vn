@@ -1,0 +1,6 @@
+Font: Arimo (bản biến đổi, có in nghiêng), tác giả Steve Matteson, "Copyright 2026 The Arimo Project Authors"
+Giấy phép: SIL Open Font License 1.1 (xem OFL.txt cùng thư mục). Được nhúng, sửa, phân phối, kể cả dùng thương mại, nhưng phải giữ bản quyền và OFL.txt, không bán riêng font.
+Nguồn tải: https://github.com/google/fonts/tree/main/ofl/arimo (kho chính thức của Google Fonts), tải ngày 30/10/2026
+Tệp: Arimo-wght.ttf, Arimo-Italic-wght.ttf, OFL.txt
+Hỗ trợ tiếng Việt: đã kiểm tra, đủ các nguyên âm có dấu (ă â đ ê ô ơ ư và các dấu thanh).
+Lý do dùng: thay Helvetica Neue (font thương mại của Linotype, anh Huy chưa có giấy phép web) bằng font mã nguồn mở có nét tương tự.
