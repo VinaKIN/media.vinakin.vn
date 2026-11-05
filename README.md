@@ -3,7 +3,7 @@
 Bản web tĩnh của Command Center để lãnh đạo xem tổng quan và trải nghiệm các chức năng.
 
 - Mở `index.html` (GitHub Pages: Settings, Pages, nhánh `main`, thư mục gốc). Không cần máy chủ.
-- **Toàn bộ số liệu là dữ liệu mẫu giả định**, không phải số thật của Fanpage, khách hàng hay doanh thu.
+- **Toàn bộ số liệu là dữ liệu mẫu giả định**, không phải số thật của Fanpage, khách hàng hay doanh thu. Các số lượt xem, lượt truy cập, tương tác của 6 fanpage là số tự đặt, không đọc từ Meta Business Suite hay công cụ nào của Meta (tên Page, ID Page và số người theo dõi là thông tin công khai).
 - Trang tự giả lập máy chủ trong trình duyệt. Các thao tác sau chạy được trên dữ liệu mẫu và lưu ở trình duyệt người xem (xóa dữ liệu trang để làm lại từ đầu):
   - Soạn, duyệt, kéo thả, đặt lịch bài viết, cột Chất lượng.
   - Trung tâm Chatbot: khung chat thử có kịch bản hỏi nhu cầu, khu vực, tên, liên hệ và chuyển sale; nhân viên vào chat, trả lời, ghi chú, giao việc; soạn và duyệt mẫu trả lời; nhận hoặc từ chối khách; bật tắt bot theo kênh.
