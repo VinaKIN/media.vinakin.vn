@@ -8941,7 +8941,8 @@ var BOT_AV={chao:'assets/mascot2/brand/vk-brand-09-a.webp',nghi:'assets/mascot2/
 var BOT_CH=[{k:'web',t:'Web',sub:'vinakin.vn, romadio.vn, winboss.vn',ic:'web:vinakin.vn',col:'#21759B',need:'Cần máy chủ riêng và plugin chat trên WordPress'},
  {k:'zalo',t:'Zalo OA',sub:'OA VinaKIN DOOR',ic:'zalo',col:'#0068FF',need:'Cần tài khoản Zalo OA để kiểm tra điều kiện gửi tin'},
  {k:'messenger',t:'Messenger',sub:'Page Vinakin.vn',ic:'fb:vinakin',col:'#1877F2',need:'Cần ứng dụng Meta được duyệt quyền nhắn tin và máy chủ HTTPS'},
- {k:'tiktok',t:'TikTok',sub:'Tài khoản TikTok VinaKIN',ic:'tiktok',col:'#FE2C55',need:'Cần kiểm tra điều kiện nhắn tin của TikTok Business tại Việt Nam trước khi nối, chưa xác nhận'}];
+ {k:'tiktok',t:'TikTok',sub:'Tài khoản TikTok VinaKIN',ic:'tiktok',col:'#FE2C55',need:'Cần kiểm tra điều kiện nhắn tin của TikTok Business tại Việt Nam trước khi nối, chưa xác nhận'},
+ {k:'instagram',t:'Instagram',sub:'Tin nhắn trực tiếp tài khoản Business',ic:'instagram',col:'#E1306C',need:'Cần nối tài khoản Instagram Business và ứng dụng Meta được duyệt quyền nhắn tin'}];
 // Phiên hết hạn (máy chủ khởi động lại, đăng nhập quá lâu): mọi lệnh gọi /api trả 401 thì mở khung đăng nhập, không để trang trống báo lỗi
 (function(){var of=window.fetch,last=0;if(!of)return;window.fetch=function(i){return of.apply(this,arguments).then(function(r){try{var u=typeof i==='string'?i:(i&&i.url)||'';if(r.status===401&&/\/api\//.test(u)&&!/\/api\/(login|logout|pages)/.test(u)&&Date.now()-last>5000){last=Date.now();var m=document.getElementById('loginMod');if(m&&!m.classList.contains('open')){m.classList.add('open');toast('Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại','info');}}}catch(e){}return r;});};})();
 async function botJ(url,body){try{var r=await fetch(url,body?{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-CC':'1'},body:JSON.stringify(body)}:{credentials:'same-origin'});var j=await r.json();if(!r.ok&&!j.error)j.error='Lỗi máy chủ '+r.status;return j;}catch(e){return{ok:false,error:'Không nối được máy chủ Command Center.'};}}
@@ -8952,13 +8953,19 @@ async function botRender(){
   var o=await botJ('/api/chatbot/overview');if(o.error){z.innerHTML='<div class="card"><div class="note">'+esc(o.error==='Cần đăng nhập'?'Phiên đăng nhập đã hết hạn. Đăng nhập lại để tiếp tục.':o.error)+'</div>'+(o.error==='Cần đăng nhập'?'<div class="lfr" style="margin-top:8px"><button class="btn btn-sm btn-p" type="button" onclick="document.getElementById(\'loginMod\').classList.add(\'open\')">Đăng nhập lại</button></div>':'')+'</div>';return;}
   BOT.ov=o;var k=o.kpi,adm=SRV.role==='admin';
   var tiles=[[k.convs_today,'Hội thoại hôm nay'],[k.leads_today,'Khách để lại thông tin'],[k.routed,'Đã chuyển cho sale'],[k.bot_pct==null?'-':k.bot_pct+'%','Bot tự xử lý'],['-','Chuyển sale trung bình']];
-  var h='<div class="card botsum"><div class="hubs"><span class="hubk">Kịch bản: <b>'+o.templates.approved+'/'+o.templates.total+'</b> mẫu đã duyệt</span><span class="hubk">Bảng sale: <b>'+o.sales+'</b> người</span><span class="hubk'+(o.unanswered?' bad':'')+'">Câu chưa trả lời: <b>'+o.unanswered+'</b></span>'+(o.demo?'<span class="sbd by">DEMO: lưu trong bộ nhớ</span>':'')+'<span style="flex:1"></span><button class="btn btn-sm btn-s" onclick="botTab(\'kb\')">Soạn mẫu trả lời</button><button class="btn btn-sm btn-p" onclick="botTab(\'tq\');botFocusPhone()">Thử kịch bản</button></div></div>';
+  var h='<div class="card botsum"><div class="hubs"><span class="hubk">Kịch bản: <b>'+o.templates.approved+'/'+o.templates.total+'</b> mẫu đã duyệt</span><span class="hubk">Bảng sale: <b>'+o.sales+'</b> người</span><span class="hubk">Lượt mở khung chat web hôm nay: <b>'+(o.opens_today==null?'-':o.opens_today)+'</b></span><span class="hubk'+(o.unanswered?' bad':'')+'">Câu chưa trả lời: <b>'+o.unanswered+'</b></span>'+(o.demo?'<span class="sbd by">DEMO: lưu trong bộ nhớ</span>':'')+'<span style="flex:1"></span><button class="btn btn-sm btn-s" onclick="botTab(\'kb\')">Soạn mẫu trả lời</button><button class="btn btn-sm btn-p" onclick="botTab(\'tq\');botFocusPhone()">Thử kịch bản</button></div></div>';
   h+='<div class="botkpis">'+tiles.map(function(t){return '<div class="botk"><b>'+t[0]+'</b><span>'+t[1]+'</span></div>';}).join('')+'</div>'+(k.real?'':'<p class="note" style="margin:0">Chưa có hội thoại thật (các kênh chưa nối). Số liệu thử trong khung điện thoại không tính vào đây; ô chưa có dữ liệu ghi dấu gạch.</p>');
-  var tabs=[['tq','Tổng quan'],['in_zalo','Zalo'],['in_messenger','Messenger'],['in_tiktok','TikTok'],['in_web','Web'],['kb','Kịch bản'],['dt','Đào tạo'],['kh','Khách'],['kenh','Cài đặt kênh']];
+  var tabs=[['tq','Tổng quan'],['in_zalo','Zalo'],['in_messenger','Messenger'],['in_tiktok','TikTok'],['in_web','Web'],['kb','Kịch bản'],['dt','Đào tạo'],['kh','Khách'],['bl','Bình luận'],['kenh','Cài đặt kênh']];
   h+='<div class="hubtabs" role="tablist">'+tabs.map(function(t){return '<button type="button" role="tab" aria-selected="'+(BOT.tab===t[0])+'" class="'+(BOT.tab===t[0]?'on':'')+'" onclick="botTab(\''+t[0]+'\')">'+t[1]+'</button>';}).join('')+'</div><div id="botP"></div>';
   z.innerHTML=h;
-  var P={tq:botTq,kb:botKb,dt:botDt,kh:botKh,kenh:botKenh}[BOT.tab];if(!P&&/^in_/.test(BOT.tab))P=function(o2,a2){return botInbox(o2,a2,BOT.tab.slice(3));};await P(o,adm);
+  var P={tq:botTq,kb:botKb,dt:botDt,kh:botKh,bl:botBl,kenh:botKenh}[BOT.tab];if(!P&&/^in_/.test(BOT.tab))P=function(o2,a2){return botInbox(o2,a2,BOT.tab.slice(3));};await P(o,adm);
 }
+// --- Bình luận có từ khóa trên fanpage (nhân viên trả lời trên Facebook, bot không tự trả lời) ---
+async function botBl(o,adm){
+  var j=await botJ('/api/chatbot/comments');var rows=j.rows||[];
+  document.getElementById('botP').innerHTML='<div class="card"><div class="h3">Bình luận có từ khóa <small>Bot không tự trả lời bình luận, nhân viên trả lời trên Facebook</small></div>'+(rows.length?rows.map(function(x){return '<div class="botir"><div class="hubmi"><b>'+esc(x.name||'Khách')+'</b><small>'+esc(x.text)+' · từ khóa: '+esc((x.kw||[]).join(', '))+' · '+esc(fmtSlot(x.at))+'</small></div><a class="btn btn-sm btn-s" target="_blank" rel="noopener noreferrer" href="'+esc(x.link)+'">Mở trên Facebook</a>'+(x.status==='moi'?'<button class="btn btn-sm btn-p" type="button" onclick="botBlDone(\''+esc(x.id)+'\')">Đã xử lý</button>':'<span class="sbd bg">Đã xử lý</span>')+'</div>';}).join(''):'<p class="note">Chưa có bình luận có từ khóa. Cần đăng ký trường feed của webhook Messenger khi nối thật.</p>')+'</div>';
+}
+async function botBlDone(id){var j=await botJ('/api/chatbot/comment-done',{id:id});toast(j.ok?'Đã đánh dấu xử lý':(j.error||'Không thực hiện được'),j.ok?'ok':'err');botRender();}
 // --- Tổng quan: sơ đồ nhánh như Trung tâm kết nối ---
 async function botTq(o,adm){
   var tt=await botJ('/api/tri-thuc');var pub=(tt.docs||[]).filter(function(x){return x.level==='cong_khai';}).length;
@@ -9046,7 +9053,7 @@ function botMsgsHTML(j){
     if(m.r==='x')return '<div class="botx">'+esc(m.t)+'</div>';
     if(m.r==='n')return '<div class="botnote"><em>Ghi chú nội bộ · '+esc(m.who||'Nhân viên')+'</em>'+esc(m.t).replace(/\n/g,'<br>')+'<small>'+esc(fmtSlot(m.at))+'</small></div>';
     var who=m.r==='u'?'Khách':m.r==='b'?'Bot':(m.who||'Nhân viên');
-    return '<div class="botm '+m.r+'"><em>'+esc(who)+'</em>'+esc(m.t).replace(/\n/g,'<br>')+(m.src?'<span class="botsrc">Nguồn: '+esc(m.src)+'</span>':'')+'<small>'+esc(fmtSlot(m.at))+(m.r==='s'&&m.sent===false?' · chưa gửi ra kênh':'')+'</small></div>';}).join('');
+    return '<div class="botm '+m.r+'"><em>'+esc(who)+'</em>'+esc(m.t).replace(/\n/g,'<br>')+(m.src?'<span class="botsrc">Nguồn: '+esc(m.src)+'</span>':'')+(m.att&&m.att.length?m.att.map(function(a){return '<a class="botatt" target="_blank" rel="noopener noreferrer" href="'+esc(a.url)+'">Mở '+({image:'hình',video:'video',audio:'âm thanh'}[a.type]||'tệp')+' (liên kết tạm của kênh)</a>';}).join(' '):'')+'<small>'+esc(fmtSlot(m.at))+(m.r==='s'&&m.sent===false?' · chưa gửi ra kênh':'')+'</small></div>';}).join('');
 }
 function botMainDraw(j,full){
   var z=document.getElementById('botMain');if(!z)return;
