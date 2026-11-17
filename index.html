@@ -2163,6 +2163,11 @@ html[data-theme=light] .advtb td.up{color:#0F6E4A}html[data-theme=light] .advtb 
   function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
   function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
   function resp(obj,status){return Promise.resolve(new Response(JSON.stringify(obj),{status:status||200,headers:{'Content-Type':'application/json'}}));}
+  /* Đăng nhập xem thử: chỉ để trình bày giao diện, KHÔNG bảo vệ gì (số liệu mẫu nằm sẵn trong trang). */
+  var DEMO_USER='xem-thu',DEMO_PW='xem-thu',LK='vk_static_login';
+  function ssGet(k){try{return sessionStorage.getItem(k);}catch(e){return null;}}
+  function ssSet(k,v){try{if(v===null)sessionStorage.removeItem(k);else sessionStorage.setItem(k,v);}catch(e){}}
+  function isIn(){return ssGet(LK)==='1'||lsGet(LK)==='1';}
   function keyOf(u){var q=(u.search||'').replace(/^\?/,'').split('&').filter(Boolean).sort().join('&');return u.pathname+(q?'?'+q:'');}
   function find(u){
     var k=keyOf(u);if(DB[k]!==undefined)return DB[k];
@@ -2194,14 +2199,20 @@ html[data-theme=light] .advtb td.up{color:#0F6E4A}html[data-theme=light] .advtb 
     var p=u.pathname.replace(/^.*?(\/api\/)/,'/api/');u=new URL(p+u.search,'http://x');
     var method=((init&&init.method)||'GET').toUpperCase();
     var body={};try{body=init&&init.body?JSON.parse(init.body):{};}catch(e){}
+    if(p==='/api/pages'&&method==='GET'&&!isIn())return resp({error:'Cần đăng nhập'},401);
+    if(p==='/api/login'&&method==='POST'){
+      var lu=String(body.user||'').trim().toLowerCase(),lp=String(body.password||'');
+      if(lu!==DEMO_USER||lp!==DEMO_PW)return resp({error:'Bản xem thử chỉ nhận tài khoản xem-thu, mật khẩu xem-thu. Không nhập mật khẩu thật.'},401);
+      if(body.remember)lsSet(LK,'1');else ssSet(LK,'1');
+      return resp({ok:true,role:'admin'});
+    }
+    if(p==='/api/logout'){ssSet(LK,null);try{localStorage.removeItem(LK);}catch(e){}return resp({ok:true});}
     try{var sr=window.__vkSim.handle(p,method,body,u);if(sr!==undefined)return resp(sr);}catch(e){}
     if(method==='GET'||method==='HEAD'){
       if(p==='/api/pages'){var j=JSON.parse(JSON.stringify(DB['/api/pages']));j.tourDone=lsGet('vk_static_tour')==='1';shiftSeries(j);return resp(j);}
       var v=find(u);
       return v!==undefined?resp(v):resp({error:'Không có dữ liệu trong bản xem thử'},404);
     }
-    if(p==='/api/login')return resp({ok:true,role:'admin'});
-    if(p==='/api/logout')return resp({ok:true});
     if(p==='/api/account/tour'){lsSet('vk_static_tour',body.done?'1':'0');return resp({ok:true});}
     if(p==='/api/advisor/ask')return resp({ok:false,fallback:'nokey',message:'Bản xem thử trả lời theo quy tắc từ số liệu mẫu.'});
     if(/^\/api\/writer\//.test(p))return resp({ok:false,reason:'demo',message:'Bản xem thử: AI viết bài cần khóa Claude API trên máy chủ thật.'});
@@ -2496,6 +2507,7 @@ html[data-theme=light] .advtb td.up{color:#0F6E4A}html[data-theme=light] .advtb 
   <div class="lgbrand"><img src="assets/logo/vinakin-logo.svg" alt="" onerror="this.remove()"><b>VINAKIN</b></div>
   <h2>COMMAND CENTER</h2>
   <p class="lgsub">KHU VỰC QUẢN TRỊ MARKETING</p>
+  <p class="note" style="margin:-12px 0 14px;text-align:center">Bản xem thử, số liệu mẫu. Tài khoản <b>xem-thu</b>, mật khẩu <b>xem-thu</b>. Không nhập mật khẩu thật.</p>
   <div class="fg"><label class="fl" for="loginUser">Email hoặc tên đăng nhập</label><input type="text" class="fi" id="loginUser" autocomplete="username" autocapitalize="none" spellcheck="false" onkeydown="if(event.key==='Enter')document.getElementById('loginPin').focus()"></div>
   <div class="fg"><label class="fl" for="loginPin">Mật khẩu</label><div class="lgpw"><input type="password" class="fi" id="loginPin" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"><button type="button" class="lgeye" aria-label="Hiện hoặc ẩn mật khẩu" onclick="var i=document.getElementById('loginPin');i.type=i.type==='password'?'text':'password'"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
   <div class="lgrow"><a href="#" class="lgfg" onclick="lgForgot();return false">Quên mật khẩu?</a><label class="lgck"><input type="checkbox" id="loginRem"> Giữ đăng nhập</label></div>
