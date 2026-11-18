@@ -294,7 +294,7 @@ html[data-theme=light] .fi,html[data-theme=light] .fta,html[data-theme=light] .f
 .ii{position:relative;border-radius:8px;overflow:hidden;aspect-ratio:1;background:var(--s3)}
 .ii img{width:100%;height:100%;object-fit:cover}
 .idl{position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(193,32,57,.85);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff}
-.iadd{border:2px dashed var(--line);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t3);border-radius:8px;aspect-ratio:1}
+.aibd{position:absolute;left:4px;bottom:4px;padding:1px 6px;border-radius:6px;background:rgba(10,18,40,.82);color:#D9B26F;font-size:10px;line-height:16px;pointer-events:none}.aitb{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 6px}.aitb .note{margin:0}.aipv{margin:10px 0;padding:10px 12px;border:1px solid var(--line);border-radius:10px}.aipv ul{margin:6px 0 8px;padding-left:18px}.aipv li{margin:3px 0}.aires{margin-top:10px}.aires img{display:block;max-width:100%;border-radius:10px}.iadd{border:2px dashed var(--line);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t3);border-radius:8px;aspect-ratio:1}
 .iadd:hover{border-color:var(--vk-blue);color:var(--vk-blue)}
 .fbl{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0 16px}
 .fbm{border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--s2)}
@@ -971,7 +971,7 @@ html[data-theme=light][data-lv] .mc{background:rgba(255,255,255,.7);border-color
 .stprog{height:8px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden;margin:8px 0 4px}.stprog div{height:100%;background:linear-gradient(90deg,#D9B26F,#3DDC97);border-radius:99px;transition:width .3s}
 .stdrw .stimg span{border:2px solid transparent;border-radius:8px;display:inline-block}.stdrw .stimg span.bad{border-color:#FF7A8C}
 .stcard>*{flex-shrink:0}.stcard>.stedw{flex:1 0 auto;min-height:220px}.stcard>.stresb{flex:1 1 auto}
-#connMod.open{z-index:260}
+#connMod.open{z-index:260}#connMod.aiimg.open{z-index:320}
 .nwic{grid-template-columns:repeat(6,minmax(0,1fr))}.nwi{padding:16px 4px;min-height:64px;justify-content:center}.nwi .ic,.nwi img,.nwi svg{width:28px;height:28px}
 .nwr2{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 .stmp{display:grid;gap:8px;margin-top:8px}.stmr{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap}
@@ -1446,7 +1446,7 @@ button.nwchip{cursor:pointer}.nwchip.ok{border-color:rgba(52,201,138,.5);backgro
 .stbudc{display:inline-flex;gap:8px;flex-wrap:wrap;align-items:center}
 .stcp{display:inline-flex;align-items:center;font:inherit;font-size:11px;padding:2px 12px;border-radius:99px;border:1px solid var(--line);color:var(--t2);background:rgba(255,255,255,.04);text-decoration:none;white-space:nowrap}
 .stcp.gold{color:#D9B26F;border-color:rgba(217,178,111,.6);border-style:dashed}.stcp.by{color:var(--amber);border-color:rgba(255,180,84,.5)}.stcp.br{color:#FF9AA8;border-color:rgba(255,122,140,.55)}
-button.stcpb{cursor:pointer}.stcp:hover{border-color:#D9B26F}
+button.stcpb{cursor:pointer}.stcp:hover{border-color:#D9B26F}.aipk{display:inline-flex;gap:2px;margin-right:6px;vertical-align:middle}.aipk .stcp{margin:0}.aipk .stcp.on{border-color:#D9B26F;color:#D9B26F}.aipk .stcp:disabled{opacity:.45;cursor:not-allowed}
 .stinl{display:inline-flex;gap:8px;flex-wrap:wrap;align-items:center}
 .stadvi .stchs{flex:0 1 46%;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin;padding-bottom:2px}.stchs .nwfc{white-space:nowrap;flex:none}
 .stadv{padding:8px 16px}
@@ -2146,6 +2146,11 @@ html[data-theme=light] .advtb td.up{color:#0F6E4A}html[data-theme=light] .advtb 
     if(p==='/api/command'||p==='/api/run'||p==='/api/command-cancel')return ok({id:rid(),queued:true});
     if(p==='/api/publish/toggle'||/^\/api\/publish\//.test(p))return bad('Bản xem thử: đăng thật luôn KHÓA, hệ thống chỉ hẹn giờ sau khi anh Huy duyệt bài.');
     if(/^\/api\/connect\/facebook\//.test(p)||p==='/api/connect/meta-app'||p==='/api/connect/catalog')return bad('Bản xem thử không đăng nhập Facebook thật. Kết nối Page chỉ chạy trên máy chủ VinaKIN.');
+    /* Gemini (18/11/2026): bản xem thử không nhận khóa, không gọi AI, không tạo ảnh, không soạn nháp */
+    if(/^\/api\/gemini\//.test(p))return bad('Bản xem thử không nhận khóa thật. Nhập khóa Gemini trên máy chủ của VinaKIN.');
+    if(p==='/api/image/list')return ok({items:[],limit:3});
+    if(p==='/api/image/preview'||p==='/api/image/generate')return bad('Bản xem thử: tạo ảnh AI cần khóa Gemini trên máy chủ thật, và anh Huy duyệt từng lần.');
+    if(p==='/api/chatbot/ai-draft')return bad('Bản xem thử: AI soạn nháp trả lời khách cần khóa Gemini hoặc Claude trên máy chủ thật.');
     return undefined;
   }
   window.__vkSim={init:init,handle:handle};
@@ -3555,12 +3560,71 @@ function demoSeedImgs(){
   var nm=[['Mẫu minh họa Romadio Panorama','assets/welcome/w1-mot-noi.webp'],['Mẫu minh họa Ponzio cách âm','assets/welcome/w2-so-lieu.webp'],['Mẫu minh họa Winboss đại lý','assets/welcome/w3-duyet.webp'],['Mẫu minh họa CMECH phụ kiện','assets/welcome/w4-chatbot.webp'],['Mẫu minh họa Civro','assets/welcome/w5-hinh-video.webp'],['Mẫu minh họa Airflow','assets/welcome/w0-title.webp']];
   save(K.imgs,nm.map(function(x,i){return{id:'demoimg'+i,name:x[0],url:x[1],created_at:new Date().toISOString(),demo:true};}));
 }
+// ─── Ảnh AI (Đợt 2, 18/11/2026): xem trước chi phí rồi anh Huy duyệt từng lần (quy tắc file 06) ───
+var AIIMG={tk:null,busy:false,last:null};
+var AI_LINES=['Ponzio','Romadio','Winboss','CMECH','Civro','Airflow','Chung'],AI_CHANS=['Facebook Page','Facebook Group','Instagram','Zalo OA','Website','Khác'],AI_RATIOS=['1:1','4:5','16:9','9:16'];
+function aiImgBar(){
+  if(!SRV.on)return '';
+  return '<div class="aitb"><button class="btn btn-s btn-sm" type="button" onclick="aiImgOpen()">Tạo ảnh AI</button><span class="note">Ưu tiên ảnh thật của team Design &amp; Media. Ảnh AI chỉ là ảnh minh họa, cần anh Huy duyệt từng lần.</span></div>';
+}
+function aiImgSync(){
+  if(!SRV.on||aiImgSync._b)return;aiImgSync._b=1;
+  fetch('/api/image/list',{credentials:'same-origin'}).then(function(r){return r.ok?r.json():null;}).then(function(j){
+    if(!j||!j.items)return;var imgs=load(K.imgs)||[],have={};imgs.forEach(function(x){have[x.url]=1;});
+    var add=j.items.filter(function(x){return !have[x.url];});
+    if(add.length){save(K.imgs,add.concat(imgs));if(_page==='media')renderTabContent();}
+  }).catch(function(){});
+}
+function aiImgFromStudio(){
+  var f=nwForm(),ch={web:'Website',fb:'Facebook Page',group:'Facebook Group',zalo:'Zalo OA',ig:'Instagram',reels:'Khác'}[f.ch]||'Khác',
+      ratio={web:'16:9',ig:'4:5',reels:'9:16'}[f.ch]||'1:1',line=AI_LINES.indexOf(f.line)>=0?f.line:'Chung',kw=String(f.kw||'').trim().slice(0,120);
+  var pr=(kw?'Ảnh minh họa cho chủ đề "'+kw+'": ':'Ảnh minh họa: ')+'không gian nội thất hiện đại, cửa nhôm kính khung mảnh, ánh sáng tự nhiên, bố cục thoáng, tông màu ấm, ảnh dựng hình';
+  aiImgOpen({prompt:pr,line:line,channel:ch,ratio:ratio,studio:true});
+}
+function aiImgOpen(pre){
+  pre=pre&&typeof pre==='object'?pre:{};AIIMG.tk=null;AIIMG.last=null;
+  var o=function(a,sel){return a.map(function(x){return '<option'+(x===sel?' selected':'')+'>'+esc(x)+'</option>';}).join('');};
+  document.getElementById('connTtl').textContent='Tạo ảnh minh họa bằng AI';
+  document.getElementById('connBody').innerHTML='<p class="note" style="margin-top:0">Chỉ gửi đoạn mô tả chữ tới Google Gemini. Không gửi ảnh thật, tên khách hay số điện thoại. Mô tả không được có giá hay chiết khấu, và không được giả làm công trình thật.</p>'+
+    '<div class="fg"><label class="fl" for="aiP">Mô tả ảnh</label><textarea class="fta" id="aiP" rows="4" maxlength="700" placeholder="Ví dụ: Phòng khách hiện đại, cửa trượt kính khung nhôm mảnh mở ra sân vườn, ánh nắng chiều, tông màu ấm"></textarea></div>'+
+    '<div class="dtr"><div class="fg"><label class="fl" for="aiL">Dòng sản phẩm</label><select class="fsel" id="aiL">'+o(AI_LINES,pre.line||'Chung')+'</select></div>'+
+    '<div class="fg"><label class="fl" for="aiC">Kênh dùng ảnh</label><select class="fsel" id="aiC">'+o(AI_CHANS,pre.channel||'Facebook Page')+'</select></div>'+
+    '<div class="fg"><label class="fl" for="aiR">Tỷ lệ</label><select class="fsel" id="aiR">'+o(AI_RATIOS,pre.ratio||'1:1')+'</select></div></div>'+
+    '<div class="lfr"><button class="btn btn-p btn-sm" type="button" id="aiPv" onclick="aiImgPrev()">Xem trước chi phí</button><button class="btn btn-s btn-sm" type="button" onclick="closeConn()">Đóng</button></div>'+
+    '<div id="aiZ" role="status"></div>';
+  var cm=document.getElementById('connMod');cm.classList.add('open','aiimg');var i=document.getElementById('aiP');if(i){if(pre.prompt)i.value=pre.prompt;i.focus();}
+}
+async function aiImgPrev(){
+  var z=document.getElementById('aiZ'),b=document.getElementById('aiPv');if(!z||AIIMG.busy)return;
+  z.innerHTML='<p class="note">Đang lập phiếu xem trước...</p>';if(b)b.disabled=true;
+  var j=await knJ('/api/image/preview',{prompt:document.getElementById('aiP').value,line:document.getElementById('aiL').value,channel:document.getElementById('aiC').value,ratio:document.getElementById('aiR').value});
+  if(b)b.disabled=false;
+  if(!j.ok){AIIMG.tk=null;z.innerHTML='<p class="note" style="color:#FF8FA0">'+esc(j.error||'Không lập được phiếu')+'</p>';return;}
+  AIIMG.tk=j.ticket;var adm=SRV.role==='admin';
+  var btn=!j.ready?'<p class="note" style="color:#FF8FA0">'+(j.reason==='budget'?'Ngân sách Gemini tháng này đã hết.':'Chưa có khóa Gemini API. Nhập ở Kênh và Web.')+'</p>':
+    adm?'<button class="btn btn-p btn-sm" type="button" id="aiGo" onclick="aiImgGo('+(j.over?'true':'false')+')">'+(j.over?'Vượt mức, vẫn tạo ảnh':'Tạo ảnh')+'</button>':
+    '<p class="note">Chỉ anh Huy (admin) bấm tạo. Gửi phiếu này cho anh Huy duyệt.</p>';
+  z.innerHTML='<div class="aipv"><b>Phiếu duyệt ảnh AI</b><ul>'+j.summary.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul><p class="note" style="margin:0 0 8px">Mô tả gửi đi: '+esc(j.prompt)+'</p><p style="margin:0 0 8px"><b>'+esc(j.question)+'</b></p>'+btn+'</div>'+
+    '<p class="note">'+esc(j.note)+' Phiếu có hiệu lực '+Math.round(j.ttl/60)+' phút và chỉ dùng một lần.</p>';
+}
+async function aiImgGo(extra){
+  var z=document.getElementById('aiZ'),b=document.getElementById('aiGo');if(!z||AIIMG.busy||!AIIMG.tk)return;
+  AIIMG.busy=true;if(b)b.disabled=true;var st=document.createElement('p');st.className='note';st.id='aiWait';st.textContent='Đang tạo ảnh, khoảng 20 đến 60 giây. Đừng đóng cửa sổ.';z.appendChild(st);
+  var j=await knJ('/api/image/generate',{ticket:AIIMG.tk,extra:!!extra});AIIMG.busy=false;
+  var w=document.getElementById('aiWait');if(w)w.remove();
+  if(j.need_extra){z.innerHTML+='<p class="note" style="color:#FF8FA0">'+esc(j.error)+'</p>';if(b)b.disabled=false;var bb=document.getElementById('aiGo');if(bb){bb.textContent='Vượt mức, vẫn tạo ảnh';bb.onclick=function(){aiImgGo(true);};}return;}
+  if(!j.ok){AIIMG.tk=null;z.innerHTML='<p class="note" style="color:#FF8FA0">'+esc(j.error||'Không tạo được ảnh')+' Muốn thử lại, bấm Xem trước chi phí để lấy phiếu mới.</p>';return;}
+  AIIMG.tk=null;AIIMG.last=j.item;var imgs=load(K.imgs)||[];imgs.unshift(j.item);save(K.imgs,imgs);
+  z.innerHTML='<div class="aires"><img src="'+esc(j.item.url)+'" alt="Ảnh minh họa AI"><p class="note">Đã lưu vào Thư viện media với nhãn "Ảnh minh họa AI". Chi phí lần này khoảng '+Number(Math.round(j.usedUsd*26000)).toLocaleString('vi-VN')+' đồng. Hôm nay: '+j.today+'/'+j.limit+' ảnh cho dòng và kênh này. Ảnh nằm trong Thư viện media, chọn dùng cho bài khi đăng.</p></div>';
+  toast('Đã tạo ảnh AI, lưu trong Thư viện media','ok');if(_page==='media')renderTabContent();
+}
 function renderImgOnly(){
+  aiImgSync();var tb=aiImgBar();
   var imgs=load(K.imgs)||[];
   if(!imgs.length&&SRV.demo){demoSeedImgs();imgs=load(K.imgs)||[];}
-  if(!imgs.length)return'<div class="es"><svg style="width:40px;height:40px"><use href="#i-img"/></svg><p>Thư viện ảnh trống. Tải ảnh lên để bắt đầu.</p><br><button class="btn btn-p" onclick="document.getElementById(\'imgInput\').click()">'+ic('i-plus')+' Tải ảnh lên</button></div>';
-  var h='<div class="ig">';
-  imgs.forEach(function(img,i){h+='<div class="ii"><img src="'+img.url+'" alt="'+esc(img.name)+'"><button class="idl" onclick="delImg('+i+')">'+ic('i-x')+'</button></div>';});
+  if(!imgs.length)return tb+'<div class="es"><svg style="width:40px;height:40px"><use href="#i-img"/></svg><p>Thư viện ảnh trống. Tải ảnh lên để bắt đầu.</p><br><button class="btn btn-p" onclick="document.getElementById(\'imgInput\').click()">'+ic('i-plus')+' Tải ảnh lên</button></div>';
+  var h=tb+'<div class="ig">';
+  imgs.forEach(function(img,i){h+='<div class="ii"><img src="'+img.url+'" alt="'+esc(img.name)+'">'+(img.ai?'<span class="aibd">Ảnh minh họa AI</span>':'')+'<button class="idl" onclick="delImg('+i+')">'+ic('i-x')+'</button></div>';});
   return h+'<div class="iadd" onclick="document.getElementById(\'imgInput\').click()"><svg style="width:24px;height:24px"><use href="#i-plus"/></svg></div></div>';
 }
 function handleImgUpload(input){
@@ -3779,6 +3843,7 @@ async function knRender(){
   KN.d=d;var adm=SRV.role==='admin';
   var cards=[];
   cards.push(['claude','Claude API','Viết bài, viết lại và Cố vấn AI bằng Claude',d.claude.keySet?(d.claude.mode==='api'?'ok':'un'):'no',d.claude.keySet?('Mô hình '+(d.claude.model||'claude-haiku-5-5')+(d.claude.usedVnd!=null?' · đã dùng '+Number(d.claude.usedVnd).toLocaleString('vi-VN')+' đ tháng này':'')):'Chưa có khóa nên AI chạy chế độ mẫu']);
+  KN_ICON.gemini=KN_ICON.gemini||KN_ICON.claude;var g_=d.gemini||{};cards.push(['gemini','Gemini API','Viết bài và Cố vấn AI bằng Gemini (chọn ngay trong Studio và Cố vấn)',g_.keySet?(g_.mode==='api'?'ok':'un'):'no',g_.keySet?('Mô hình '+(g_.model||'gemini')+(g_.usedVnd!=null?' · đã dùng '+Number(g_.usedVnd).toLocaleString('vi-VN')+' đ tháng này':'')):'Chưa có khóa, Gemini chưa dùng được']);
   var t=d.telegram||{};cards.push(['telegram','Bot Telegram','Báo cáo và cảnh báo qua Telegram, chỉ đọc',t.configured?'ok':'no',t.configured?((t.bot||'Bot')+' · '+t.allowed+' người được phép'+(t.report_chat?' · có nhóm báo cáo':'')):'Chưa có token từ @BotFather']);
   Object.keys(d.kenh||{}).forEach(function(k){var c=d.kenh[k];var st=c.configured?(c.verified===true?'ok':c.verified===false?'err':'un'):'no';cards.push([k,c.label,c.note,st,c.configured?((c.last4||'đã lưu')+(c.checked_at?' · thử '+fmtSlot(c.checked_at):'')+(c.error?' · '+c.error:'')):'Chưa nhập thông tin']);});
   z.innerHTML='<div class="kngr">'+cards.map(function(c){return '<div class="knc"><span class="welc">'+welIc(KN_ICON[c[0]]||KN_ICON.zalo,20)+'</span><div class="knb"><b>'+esc(c[1])+' '+knChip(c[3])+'</b><small>'+esc(c[2])+'</small><em>'+esc(c[4])+'</em></div><button class="btn btn-sm '+(c[3]==='no'?'btn-p':'btn-s')+'" type="button" onclick="knOpen(\''+c[0]+'\')">'+(adm?(c[3]==='no'?'Thiết lập':'Sửa'):'Xem')+'</button></div>';}).join('')+
@@ -3794,6 +3859,11 @@ function knOpen(ch){
     h='<p class="note" style="margin-top:0">Lấy khóa tại console.anthropic.com, mục API keys. Khóa có dạng sk-ant-... Cố vấn AI và Studio viết bài dùng mô hình '+esc(c.model||'claude-haiku-5-5')+', có ngân sách tháng và không bao giờ tự duyệt hay đăng.</p>'+warn+
       '<div class="fg"><label class="fl" for="kn_key">Khóa Claude API</label><input class="fi" id="kn_key" type="password" autocomplete="off" spellcheck="false" placeholder="'+(c.keySet?'Đã lưu, dán khóa mới để thay':'sk-ant-...')+'"'+(adm?'':' disabled')+'></div>';
     bt=(adm?'<button class="btn btn-p btn-sm" type="button" onclick="knSaveClaude()">Lưu khóa</button><button class="btn btn-s btn-sm" type="button" onclick="knTestClaude()"'+(c.keySet?'':' disabled')+'>Thử khóa</button><button class="btn btn-s btn-sm" type="button" onclick="knDelClaude()"'+(c.keySet?'':' disabled')+'>Xóa khóa</button>':'');
+  }else if(ch==='gemini'){
+    ttl='Gemini API';var g=d.gemini||{};
+    h='<p class="note" style="margin-top:0">Lấy khóa tại aistudio.google.com, mục API keys. Khóa có dạng AIza... Studio viết bài và Cố vấn AI dùng mô hình '+esc(g.model||'gemini')+', có ngân sách tháng riêng và không bao giờ tự duyệt hay đăng. <b>Dùng khóa của dự án đã bật thanh toán:</b> gói miễn phí của Gemini cho phép Google dùng nội dung gửi lên để cải thiện sản phẩm.</p>'+warn+
+      '<div class="fg"><label class="fl" for="kn_gkey">Khóa Gemini API</label><input class="fi" id="kn_gkey" type="password" autocomplete="off" spellcheck="false" placeholder="'+(g.keySet?'Đã lưu, dán khóa mới để thay':'AIza...')+'"'+(adm?'':' disabled')+'></div>';
+    bt=(adm?'<button class="btn btn-p btn-sm" type="button" onclick="knSaveGemini()">Lưu khóa</button><button class="btn btn-s btn-sm" type="button" onclick="knTestGemini()"'+(g.keySet?'':' disabled')+'>Thử khóa</button><button class="btn btn-s btn-sm" type="button" onclick="knDelGemini()"'+(g.keySet?'':' disabled')+'>Xóa khóa</button>':'');
   }else if(ch==='telegram'){
     ttl='Bot Telegram';var t=d.telegram||{};
     h='<ol class="note" style="margin:0 0 8px;padding-left:18px"><li>Trong Telegram, chat với @BotFather, gõ /newbot, đặt tên, nhận token.</li><li>Dán token bên dưới và lưu.</li><li>Hỏi @userinfobot để lấy ID số của người được phép hỏi bot, thêm vào danh sách.</li><li>Thêm bot vào nhóm báo cáo, lấy ID nhóm (số âm), đặt làm nhóm báo cáo rồi gửi tin thử.</li></ol>'+warn+
@@ -3812,6 +3882,9 @@ function knOpen(ch){
 function knMsg(t,ok){var e=document.getElementById('knMsg');if(e){e.textContent=t;e.style.color=ok?'var(--green)':'var(--vk-red)';}}
 async function knDone(j,okMsg){if(j.ok||j.warn){knMsg((j.warn||okMsg),true);toast(okMsg,'ok');}else knMsg(j.error||'Không thực hiện được',false);await knRender();try{KN.d=await knJ('/api/kenh/status');if(_page==='new')nwApRefresh();}catch(e){}}
 async function knSaveClaude(){var i=document.getElementById('kn_key'),j=await knJ('/api/advisor/key',{key:i?i.value:''});if(i&&j.ok)i.value='';await knDone(j,'Đã lưu khóa Claude (…'+(j.last4||'')+')');if(j.ok)knOpen('claude');}
+async function knSaveGemini(){var i=document.getElementById('kn_gkey'),j=await knJ('/api/gemini/key',{key:i?i.value:''});if(i&&j.ok)i.value='';await knDone(j,'Đã lưu khóa Gemini (…'+(j.last4||'')+')');if(j.ok)knOpen('gemini');}
+async function knTestGemini(){knMsg('Đang thử...',true);var j=await knJ('/api/gemini/key-test',{});knMsg(j.ok?'Khóa dùng được ('+(j.model||'')+')':(j.error||'Khóa chưa dùng được'),!!j.ok);}
+async function knDelGemini(){if(!await vkConfirm('Xóa khóa Gemini API? Gemini sẽ không dùng được cho đến khi nhập khóa mới.'))return;var j=await knJ('/api/gemini/key-delete',{});await knDone(j,'Đã xóa khóa');if(j.ok)knOpen('gemini');}
 async function knTestClaude(){knMsg('Đang thử...',true);var j=await knJ('/api/advisor/key-test',{});knMsg(j.ok?'Khóa dùng được ('+(j.model||'')+')':(j.error||'Khóa chưa dùng được'),!!j.ok);}
 async function knDelClaude(){if(!await vkConfirm('Xóa khóa Claude API? AI sẽ chạy chế độ mẫu.'))return;var j=await knJ('/api/advisor/key-delete',{});await knDone(j,'Đã xóa khóa');if(j.ok)knOpen('claude');}
 async function knSaveTg(){var t=document.getElementById('kn_tok'),u=document.getElementById('kn_uid'),g=document.getElementById('kn_gid'),msg=[],ok=true;
@@ -3867,7 +3940,7 @@ var CONN_HELP={
  cms:{t:'Kết nối website WordPress (đăng thẳng qua API)',steps:['Mỗi site cần một Application Password. Tạo trong WordPress: Người dùng, Hồ sơ, Application Passwords, Thêm mới.','Trong cửa sổ terminal của anh chạy: <code>python 04-HE-THONG/04-creative-pipeline/nhap-khoa.py wp vinakin</code> (đổi vinakin thành romadio hoặc winboss cho site khác). Mật khẩu gõ vào bị ẩn, chỉ ghi vào .env phía server. Tuyệt đối không dán vào dashboard.','Quay lại Cài đặt, bấm Kiểm tra kết nối. Chỉ đăng được khi mở dashboard qua server và bài đã Duyệt.','Mặc định bài lên web ở dạng bản nháp. Xuất bản ngay là công tắc riêng, cần xác nhận hai lần.']}
 };
 function connHelp(k){var gm={meta:'facebook',cms:'wordpress',gsc:'gsc',zalo:'zalo',youtube:'youtube',tiktok:'tiktok'};if(gm[k]&&SRV.on){guideOpen(gm[k]);return;}var h=CONN_HELP[k];if(!h)return;document.getElementById('connTtl').textContent=h.t;document.getElementById('connBody').innerHTML='<div class="hlp"><ol>'+h.steps.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ol></div>';document.getElementById('connMod').classList.add('open');}
-function closeConn(){var m=document.getElementById('connMod');m.classList.remove('open','lgtop');}
+function closeConn(){var m=document.getElementById('connMod');m.classList.remove('open','lgtop','aiimg');}
 function setMetaExpiry(v){var s=chanStore();s.metaExpiry=v||'';save(KC.chan,s);renderSettings();renderReminders();}
 function toggleSite(site,field,val){var s=siteStore();s[site][field]=!!val;save(KC.sites,s);renderSettings();}
 function toggleTiktok(v){var s=chanStore();s.tiktokVisible=!!v;save(KC.chan,s);renderSettings();}
@@ -6807,11 +6880,12 @@ async function advAnswer(q){
   ['advB','advB2'].forEach(function(id,k){var b=document.getElementById(id);if(b){var ty=document.createElement('div');ty.className='advtyp';ty.id='advTyp'+(k?'2':'');ty.textContent='Em đang xem số liệu...';b.appendChild(ty);b.scrollTop=b.scrollHeight;}});
   var r=null;
   try{r=advRule(q);}catch(e){r=null;}
-  if(!r&&SRV.on&&ADV.st&&ADV.st.mode==='api'){
+  var _ai=advAi();
+  if(!r&&SRV.on&&ADV.st&&_ai){
     try{
-      var res=await fetch('/api/advisor/ask',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-CC':'1'},body:JSON.stringify({q:q,ctx:advCtx(),hist:advHist()})});
+      var res=await fetch('/api/advisor/ask',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-CC':'1'},body:JSON.stringify({q:q,ctx:advCtx(),hist:advHist(),ai:_ai})});
       var j=await res.json();
-      if(j.ok){r={t:j.text,src:'Claude (Haiku) dựa trên số liệu dashboard lúc '+advHM(),acts:j.open?[{l:'Mở trang liên quan',a:'go',p:j.open}]:[]};ADV.st.usedVnd=j.usedVnd;}
+      if(j.ok){r={t:j.text,src:(j.ai==='gemini'?'Gemini':'Claude (Haiku)')+' dựa trên số liệu dashboard lúc '+advHM(),acts:j.open?[{l:'Mở trang liên quan',a:'go',p:j.open}]:[]};ADV.st.usedVnd=j.usedVnd;}
       else{if(j.fallback==='budget'||j.fallback==='nokey')ADV.st.mode='rule';r=advUnknown(j.message||'');}
     }catch(e){r=advUnknown('Không nối được máy chủ. Em chuyển sang trả lời theo quy tắc.');}
   }
@@ -6888,7 +6962,7 @@ function advRender(){
 }
 function advQRender(){var h='<span class="advql">Lệnh nhanh</span>'+ADV_Q.map(function(x,i){return '<button type="button" class="pill sm" onclick="advAsk(ADV_Q['+i+'])">'+esc(x)+'</button>';}).join('');['advQ','advQ2'].forEach(function(id){var q=document.getElementById(id);if(q)q.innerHTML=h;});}
 function advModeRender(){
-  var st=ADV.st,t=!SRV.on?'Bản demo, số liệu mẫu':(st&&st.mode==='api')?'Claude Haiku và số liệu dashboard':'Trả lời theo quy tắc từ số liệu';
+  var st=ADV.st,t=!SRV.on?'Bản demo, số liệu mẫu':(advAi()==='gemini')?'Gemini và số liệu dashboard':(st&&st.mode==='api')?'Claude Haiku và số liệu dashboard':'Trả lời theo quy tắc từ số liệu';
   ['advMode','advMode2'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=t;});
 }
 async function advStatus(){
@@ -6909,11 +6983,13 @@ function advCfgRender(){
   var z=document.getElementById('advCfgZ');if(!z)return;
   if(!SRV.on){z.innerHTML='Bản demo: chat trả lời theo quy tắc từ số liệu mẫu, không gọi Claude API.';return;}
   var st=ADV.st;if(!st){z.textContent='Đang tải trạng thái...';advStatus();return;}
-  if(SRV.role!=='admin'){z.textContent='Chế độ: '+(st.mode==='api'?'Claude Haiku và số liệu dashboard':'quy tắc từ số liệu')+'. Chi tiết chỉ admin xem được.';return;}
+  var _pk=(st.gemini&&st.gemini.mode==='api'&&st.mode==='api')?'<div style="margin-top:6px">AI trả lời: <span class="aipk" role="group" aria-label="Chọn AI cố vấn">'+['claude','gemini'].map(function(k){var n=k==='gemini'?'Gemini':'Claude';return '<button type="button" class="stcp stcpb'+(advAi()===k?' on':'')+'" aria-pressed="'+(advAi()===k)+'" onclick="aiSet(\''+k+'\')">'+n+'</button>';}).join('')+'</span></div>':'';
+  if(SRV.role!=='admin'){z.innerHTML='Chế độ: '+esc(advAi()==='gemini'?'Gemini và số liệu dashboard':st.mode==='api'?'Claude Haiku và số liệu dashboard':'quy tắc từ số liệu')+'. Chi tiết chỉ admin xem được.'+_pk;return;}
   var why={nokey:'Chưa có khóa Claude API. Trên máy chủ chạy: python advisor.py dat-khoa',budget:'AI tạm dừng đến đầu tháng sau, đang trả lời theo quy tắc.',demo:'Chế độ demo.'}[st.reason]||'';
   z.innerHTML='<div>Chế độ: <b>'+esc(st.mode==='api'?'Claude '+(st.model||'')+' và số liệu dashboard':'quy tắc từ số liệu')+'</b>'+(why?' · '+esc(why):'')+'</div>'+
     '<div>Khóa API: '+(st.keySet?'đã lưu trong kho mã hóa (không hiển thị)':'chưa có')+'</div>'+
-    '<div>Tháng '+esc(st.month||'')+': '+(st.queries||0)+' câu hỏi gửi lên API.</div>';
+    '<div>Gemini: '+(st.gemini&&st.gemini.keySet?'đã có khóa'+(st.gemini.mode==='api'?', đang bật':', tạm dừng ('+esc(st.gemini.reason||'')+')'):'chưa có khóa. Chạy: python ai_gemini.py dat-khoa, hoặc nhập ở Kênh và Web')+(st.gemini&&st.gemini.model?' · '+esc(st.gemini.model):'')+'</div>'+
+    '<div>Tháng '+esc(st.month||'')+': '+(st.queries||0)+' câu hỏi gửi lên Claude'+(st.gemini&&st.gemini.queries?', '+st.gemini.queries+' câu gửi lên Gemini':'')+'.</div>'+_pk;
 }
 function advInit(){
   advLoad();advQRender();advModeRender();advDot();
@@ -7717,7 +7793,7 @@ async function nwStatus(){
   _nw.kb=await nwGet('/api/writer/kb')||{pains:[],hooks:[],ctas:[],specs:{},events:[]};
   var b=await nwGet('/api/writer/briefs');_nw.briefs=b&&b.briefs||[];
 }
-function nwAiOn(){return !!(_nw.st&&_nw.st.mode==='api');}
+function nwAiOn(){var s=_nw.st;if(!s)return false;if(s.providers){var r=s.providers[aiPref()];return !!(r&&r.ready);}return s.mode==='api';}
 function nwDemo(){return !!(_nw.st&&_nw.st.demo&&!nwAiOn());}
 function nwPainBank(){var kb=_nw.kb||{},own=load(NW_PAINS)||[];return (kb.pains||[]).map(function(x){return x.t+': '+x.c;}).concat(own);}
 function nwHookBank(){var kb=_nw.kb||{},own=load(NW_HOOKS)||[];return (kb.hooks||[]).concat(own);}
@@ -7945,7 +8021,7 @@ function stGet(){var e=stEd();if(!e||e.hidden)return ST.cur||'';ST.cur=ST.html?n
 function stSet(t){ST.cur=t||'';var e=stEd();if(!e)return;if(ST.html)e.innerHTML=nwSafeHtml(ST.cur);else e.textContent=ST.cur;if(ST.diff||ST.view!=='edit')stApplyView();stR();}
 function stPlain(t){return ST.html?plainOf({html:t}):String(t||'');}
 // ----- mở, đóng, thu nhỏ
-function stAiTxt(){var s=ST.st||_nw.st||{};return s.mode==='api'?'':(s.message||'AI chưa sẵn sàng. Cần khóa Claude API ở máy anh Huy.');}
+function stAiTxt(){var s=ST.st||_nw.st||{};if(s.providers){var r=s.providers[aiPref()]||{};return r.ready?'':(r.message||'AI chưa sẵn sàng. Cần khóa Claude hoặc Gemini API ở máy anh Huy.');}return s.mode==='api'?'':(s.message||'AI chưa sẵn sàng. Cần khóa Claude API ở máy anh Huy.');}
 async function stOpen(auto){
   var f=nwForm();ST.html=f.ch==='web';ST.xh=({CHUNHA:'chunha',KTS:'kts',DAILY:'daily',THAU:'thau'})[f.aud||'CHUNHA']||'chunha';
   ST.src=[];ST.open=true;ST.min=false;ST.view='edit';ST.diff=false;ST.sug=null;ST.titles=[];ST.ver=[];ST.tick={};ST.vers=[];ST.vi=-1;ST.cur='';ST.d=null;ST.ol=null;ST.result=null;ST.hum={};ST.himg={};ST.dt='kt';ST.find=false;ST.advOpen=true;ST.chat=[];ST.advBusy=false;ST.opt=false;ST.title=f.title||'';ST.hook='';ST.busy=false;ST.msg='';ST.dirty=false;ST.reason='';
@@ -7962,9 +8038,9 @@ function stRestore(){var s=load(ST_KD);if(!s||!s.text){toast('Chưa có bản t�
 // ----- chạy AI: dàn ý rồi bài đầy đủ
 function stEst(len){var tin=Math.round(len/3)+12000,tout=Math.round(len/3*1.3),usd=(tin*0.10+tout*0.50)/1e6;return Math.max(10,Math.round(usd*26000/10)*10);}
 function stHead(){
-  var e=document.getElementById('stBud');if(!e)return;var s=ST.st||_nw.st||{},p=s.used_pct,w=s.warn;
+  var e=document.getElementById('stBud');if(!e)return;var s=ST.st||_nw.st||{},p=s.used_pct,w=s.warn;var _pv=(s.providers||{})[aiPref()];if(_pv&&_pv.pct!=null){p=_pv.pct;w=p>=100?'stop':p>=90?'high':p>=70?'mid':'';}
   var est=stEst(Math.max(stPlain(ST.cur).length,600));
-  e.innerHTML='<span class="stcp'+(w==='stop'||w==='high'?' br':w==='mid'?' by':'')+'" title="'+(p==null?'Chưa đọc được ngân sách AI':'Ngân sách AI tháng này đã dùng '+p+'%. Ước tính mỗi lần viết lại khoảng '+est+' đồng.')+(w?' '+(w==='stop'?'Hết ngân sách, AI tạm dừng.':w==='high'?'Gần hết (từ 90%).':'Đã qua 70%.'):'')+'">Ngân sách '+(p==null?'—':p+'%')+' · ~'+est+'đ/lần</span>'+
+  e.innerHTML=aiPickHTML()+'<span class="stcp'+(w==='stop'||w==='high'?' br':w==='mid'?' by':'')+'" title="'+(p==null?'Chưa đọc được ngân sách AI':'Ngân sách AI tháng này đã dùng '+p+'%. Ước tính mỗi lần viết lại khoảng '+est+' đồng.')+(w?' '+(w==='stop'?'Hết ngân sách, AI tạm dừng.':w==='high'?'Gần hết (từ 90%).':'Đã qua 70%.'):'')+'">Ngân sách '+(p==null?'—':p+'%')+' · ~'+est+'đ/lần</span>'+
     ((s.sources&&s.sources.length)?'<a class="stcp" href="#" title="'+esc(s.sources.map(function(x){return x.title;}).join('\n'))+'" onclick="stMin(true);setNav(\'kt\');return false">Tri thức '+s.sources.length+'</a>':'')+
     (stDemo()?'<span class="stcp gold" title="Chưa có khóa Claude API: bấm Viết lại sẽ ra kết quả mẫu để thử luồng">DEMO · kết quả mẫu</span>':stAiTxt()?'<span class="stcp" title="Chưa có khóa Claude API">Chưa có khóa AI</span>':'')+
     (stAiTxt()?'<button type="button" class="stcp stcpb" onclick="nwHelp(\'key\')">Cách đặt khóa</button>':'');
@@ -8420,7 +8496,7 @@ function stReport(){
 }
 function stPaint(){
   var w=document.getElementById('stWin');var hasS=!!(load(ST_KD)||{}).text,av=stMs('giai_thich');
-  w.innerHTML='<div class="sth"><div class="stt"><b>Studio AI viết bài</b><span class="sbd bg">AI STUDIO</span><span class="stcp" title="Bản nháp, chưa duyệt, chưa đăng">Bản nháp</span><span class="stbudc" id="stBud"></span></div><div class="sth2">'+(hasS?'<button class="btn btn-sm btn-s" onclick="stRestore()">Khôi phục bản tự lưu</button>':'')+'<button class="btn btn-sm btn-s" id="stChkBtn" onclick="stDrawer()">Kiểm tra</button><button class="btn btn-sm btn-s" onclick="stSample()">Mẫu thử</button><button class="btn btn-sm btn-s" onclick="stFocus()">Tập trung</button><button class="btn btn-sm btn-s" onclick="stMin(true)">Thu nhỏ</button><button class="btn btn-sm btn-s" aria-label="Đóng" onclick="stClose()">'+ic('i-x')+'</button></div></div>'+
+  w.innerHTML='<div class="sth"><div class="stt"><b>Studio AI viết bài</b><span class="sbd bg">AI STUDIO</span><span class="stcp" title="Bản nháp, chưa duyệt, chưa đăng">Bản nháp</span><span class="stbudc" id="stBud"></span></div><div class="sth2">'+(hasS?'<button class="btn btn-sm btn-s" onclick="stRestore()">Khôi phục bản tự lưu</button>':'')+(SRV.on?'<button class="btn btn-sm btn-s" id="stImgBtn" title="Tạo ảnh minh họa bằng AI: xem trước chi phí, anh Huy duyệt từng lần" onclick="aiImgFromStudio()">Ảnh AI</button>':'')+'<button class="btn btn-sm btn-s" id="stChkBtn" onclick="stDrawer()">Kiểm tra</button><button class="btn btn-sm btn-s" onclick="stSample()">Mẫu thử</button><button class="btn btn-sm btn-s" onclick="stFocus()">Tập trung</button><button class="btn btn-sm btn-s" onclick="stMin(true)">Thu nhỏ</button><button class="btn btn-sm btn-s" aria-label="Đóng" onclick="stClose()">'+ic('i-x')+'</button></div></div>'+
    '<div class="stbusy" id="stBusy" hidden></div>'+
    '<div class="stl stlh" id="stL"></div>'+
    '<div class="stmain"><div class="stcard stc" id="stC"></div><div class="stcard stcr"><div class="stch"><b>Kết quả</b><span id="stResH" class="stresh"></span></div><div class="stresb" id="stRes"></div></div></div>'+
@@ -8517,7 +8593,30 @@ function nwLinks(f){
   var cidv=clusterId(f.line==='chung'?'':f.line,String(f.cl||'').trim());
   return getPosts().filter(function(p){var u=p.wp_url||p.link;if(!u||!/^https?:/.test(u)||p.status!=='PUBLISHED')return false;if(cidv&&p.cluster_id===cidv)return true;var cp=clusterParts(p.cluster_id);return f.line&&f.line!=='chung'&&cp.line===f.line;}).slice(0,4);
 }
+var AI_K='vk_ai';
+function aiState(){return (typeof ST!=='undefined'&&ST&&ST.st)||(typeof _nw!=='undefined'&&_nw&&_nw.st)||{};}
+function aiPref(){
+  var s=aiState(),pv=s.providers||{},p='';try{p=localStorage.getItem(AI_K)||'';}catch(e){}
+  if((p==='claude'||p==='gemini')&&pv[p]&&pv[p].ready)return p;
+  return s.default_ai||'claude';
+}
+function aiSet(p){
+  try{localStorage.setItem(AI_K,p);}catch(e){}
+  try{stHead();}catch(e){}try{if(typeof nwApRefresh==='function'&&_page==='new')renderAll2();}catch(e){}try{advCfgRender();}catch(e){}
+  toast('Đã chọn '+(p==='gemini'?'Gemini':'Claude')+' cho các lần viết và hỏi tiếp theo','info');
+}
+function aiPickHTML(){
+  var pv=aiState().providers;if(!pv)return '';var cur=aiPref();
+  var b=function(k,n){var r=pv[k]||{};return '<button type="button" class="stcp stcpb'+(cur===k?' on':'')+'"'+(r.ready?'':' disabled')+' aria-pressed="'+(cur===k)+'" title="'+esc(r.ready?('Viết bằng '+n):(r.message||n+' chưa sẵn sàng'))+'" onclick="aiSet(\''+k+'\')">'+n+'</button>';};
+  return '<span class="aipk" role="group" aria-label="Chọn AI viết bài">'+b('claude','Claude')+b('gemini','Gemini')+'</span>';
+}
+function advAi(){
+  var st=ADV.st||{},cl=st.mode==='api',ge=!!(st.gemini&&st.gemini.mode==='api'),p='';try{p=localStorage.getItem(AI_K)||'';}catch(e){}
+  if(p==='gemini'&&ge)return 'gemini';if(p==='claude'&&cl)return 'claude';
+  return cl?'claude':ge?'gemini':'';
+}
 async function nwPost(path,body){
+  try{if(body&&body.inp&&typeof body.inp==='object')body.inp.ai=aiPref();}catch(e){}
   try{var r=await fetch('/api/writer/'+path,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-CC':'1'},body:JSON.stringify(body)});var j=await r.json();if(!r.ok&&!j.message)j={ok:false,message:j.error||('Lỗi máy chủ '+r.status)};return j;}
   catch(e){return{ok:false,message:'Không nối được máy chủ Command Center.'};}
 }
@@ -9096,12 +9195,35 @@ function botMainDraw(j,full){
   if(!full&&document.getElementById('botCm')){var mm=document.getElementById('botCm'),atEnd=mm.scrollHeight-mm.scrollTop-mm.clientHeight<60;mm.innerHTML=botMsgsHTML(j);if(atEnd)mm.scrollTop=mm.scrollHeight;var hh=z.querySelector('.botmh');if(hh)hh.outerHTML=head;return;}
   z.innerHTML=head+'<div class="botmsgs botcm" id="botCm">'+botMsgsHTML(j)+'</div>'+
     '<div class="botsug" id="botSug"></div>'+
-    '<div class="botcmp"><div class="botmode"><button type="button" class="'+(BOT.note?'':'on')+'" onclick="botMode(false)">Trả lời khách</button><button type="button" class="'+(BOT.note?'on':'')+'" onclick="botMode(true)">Ghi chú nội bộ</button><span style="flex:1"></span><select class="fsel" id="botTpl" onchange="botTplIns(this)" aria-label="Chèn mẫu đã duyệt"><option value="">Chèn mẫu đã duyệt…</option></select><button type="button" class="btn btn-sm btn-s" onclick="botSuggest()">Gợi ý từ Tri thức</button></div>'+
+    '<div class="botcmp"><div class="botmode"><button type="button" class="'+(BOT.note?'':'on')+'" onclick="botMode(false)">Trả lời khách</button><button type="button" class="'+(BOT.note?'on':'')+'" onclick="botMode(true)">Ghi chú nội bộ</button><span style="flex:1"></span><select class="fsel" id="botTpl" onchange="botTplIns(this)" aria-label="Chèn mẫu đã duyệt"><option value="">Chèn mẫu đã duyệt…</option></select><button type="button" class="btn btn-sm btn-s" onclick="botSuggest()">Gợi ý từ Tri thức</button>'+(SRV.on&&!BOT.note?'<button type="button" class="btn btn-sm btn-s" id="botAiB" title="AI chỉ soạn nháp, nhân viên đọc, sửa rồi tự bấm Gửi" onclick="botAiDraft()">AI soạn nháp</button>':'')+'</div>'+
     '<div class="botin"><textarea class="fta" id="botSIn" rows="2" maxlength="800" placeholder="'+(BOT.note?'Ghi chú cho đồng nghiệp, khách không thấy…':'Nhập tin gửi khách… (Enter để gửi, Shift+Enter xuống dòng)')+'" onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();botStaffSend();}"></textarea><button class="btn btn-p btn-sm" type="button" onclick="botStaffSend()">'+(BOT.note?'Lưu ghi chú':'Gửi')+'</button></div>'+
     (j.live?'':'<p class="note" style="margin:6px 0 0">Kênh này chưa nối nên đây là hội thoại '+(j.sample?'mẫu':'thử')+'. Tin của nhân viên được lưu trong hệ thống, chưa gửi tới khách.</p>')+(SRV.role==='admin'?'':'<p class="note" style="margin:4px 0 0">Số điện thoại hiển thị dạng che với tài khoản không phải admin.</p>')+'</div>';
   var m=document.getElementById('botCm');if(m)m.scrollTop=m.scrollHeight;
   botTplLoad();
 }
+// ─── AI soạn nháp trả lời khách (Đợt 3, 18/11/2026): chỉ là nháp, nhân viên đọc, sửa rồi tự bấm Gửi ───
+function botAi(){
+  var st=ADV.st||{},cl=st.mode==='api',ge=!!(st.gemini&&st.gemini.mode==='api'),p='';try{p=localStorage.getItem(AI_K)||'';}catch(e){}
+  if(p==='claude'&&cl)return 'claude';if(ge)return 'gemini';return cl?'claude':'';
+}
+async function botAiDraft(){
+  var z=document.getElementById('botSug');if(!z||BOT.aiBusy)return;
+  var msg=function(t,er){z.innerHTML='<div class="botsugc"><small'+(er?' style="color:#FF8FA0"':'')+'>'+esc(t)+'</small></div>';};
+  if(!ADV.st){try{await advStatus();}catch(e){}}
+  var ai=botAi();if(!ai){msg('Chưa có khóa Gemini hoặc Claude, hoặc đã hết ngân sách tháng này. Nhập khóa ở Kênh và Web.',true);return;}
+  BOT.aiBusy=true;var b=document.getElementById('botAiB');if(b)b.disabled=true;msg('AI đang soạn nháp, vài giây...');
+  var j=await botJ('/api/chatbot/ai-draft',{id:BOT.cur,ai:ai});BOT.aiBusy=false;b=document.getElementById('botAiB');if(b)b.disabled=false;
+  if(!j||!j.ok){msg((j&&j.error)||'Không soạn được nháp',true);return;}
+  BOT.aid=j;var nm=j.ai==='gemini'?'Gemini':j.ai==='claude'?'Claude':'mẫu đã duyệt';
+  if(!j.draft){
+    z.innerHTML='<div class="botsugc"><b>Không có nháp AI</b><p>'+esc(j.blocked||j.note||'')+'</p>'+(j.kb?'<small>Gợi ý không dùng AI: '+esc(j.kb.t)+'</small><div class="lfr"><button class="btn btn-sm btn-p" type="button" onclick="botSug2Use()">Dùng gợi ý này</button><button class="btn btn-sm btn-s" type="button" onclick="document.getElementById(\'botSug\').innerHTML=\'\'">Bỏ qua</button></div>':'')+'</div>';
+    BOT.sug=BOT.sug||{};BOT.sug.kb=j.kb||BOT.sug.kb;return;
+  }
+  z.innerHTML='<div class="botsugc"><b>Nháp '+esc(nm)+'</b> <span class="sbd by">Chưa gửi</span><p>'+esc(j.draft)+'</p><small>'+(j.needs_human?'Nên để tư vấn viên xử lý. ':'')+esc(j.note||'')+(j.basis&&j.basis.length?' Nguồn: '+esc(j.basis.join(', ')):'')+'</small>'+
+    '<div class="lfr"><button class="btn btn-sm btn-p" type="button" onclick="botAiUse()">Đưa vào ô soạn</button><button class="btn btn-sm btn-s" type="button" onclick="document.getElementById(\'botSug\').innerHTML=\'\'">Bỏ qua</button></div><small>Đọc kỹ và sửa. Chỉ khi anh/chị bấm Gửi, khách mới nhận được tin.</small></div>';
+}
+function botAiUse(){var j=BOT.aid,i=document.getElementById('botSIn');if(j&&j.draft&&i){i.value=j.draft;BOT.note=false;i.focus();}var z=document.getElementById('botSug');if(z)z.innerHTML='';}
+function botSug2Use(){var k=BOT.aid&&BOT.aid.kb,i=document.getElementById('botSIn');if(k&&i){i.value=k.t;BOT.note=false;i.focus();}var z=document.getElementById('botSug');if(z)z.innerHTML='';}
 async function botTplLoad(){var s=await botJ('/api/chatbot/suggest?id='+encodeURIComponent(BOT.cur));BOT.sug=s&&s.ok?s:null;var sel=document.getElementById('botTpl');if(sel&&BOT.sug)sel.innerHTML='<option value="">Chèn mẫu đã duyệt…</option>'+BOT.sug.templates.map(function(t,i){return '<option value="'+i+'">'+esc(t.title)+'</option>';}).join('');}
 function botTplIns(sel){if(sel.value===''||!BOT.sug)return;var t=BOT.sug.templates[+sel.value],i=document.getElementById('botSIn');if(t&&i){i.value=t.text.replace('{sale}',(BOT.last&&BOT.last.info&&BOT.last.info.sale)||'tư vấn viên');BOT.note=false;i.focus();}sel.value='';}
 async function botSuggest(){
