@@ -1113,7 +1113,7 @@ html[data-page=chan] .cpanel,html[data-page=chan] .cpfab{display:none!important}
 .botav{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:600;font-size:12px;flex:none}
 .botphone{background:#0b1d52;border:6px solid #0a1640;border-radius:28px;padding:12px;box-shadow:0 20px 50px rgba(0,8,30,.45);position:sticky;top:12px}
 .botph{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--t2);padding:2px 0 8px;border-bottom:1px solid var(--line);margin-bottom:8px;gap:8px}
-.botmsgs{max-height:300px;overflow:auto;display:grid;gap:8px;align-content:start;min-height:150px}
+.botai{display:block;margin:-4px 0 0 6px;font-size:11px;color:var(--t3)}.botmsgs{max-height:300px;overflow:auto;display:grid;gap:8px;align-content:start;min-height:150px}
 .botm{max-width:86%;padding:8px 12px;border-radius:14px;font-size:13px;line-height:1.45}.botm.b{background:var(--card2,#163580);border-top-left-radius:4px}.botm.u{background:#4C86E8;margin-left:auto;border-top-right-radius:4px}.botm small{display:block;opacity:.6;font-size:11px;margin-top:2px}
 .botq{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.botqb{border:1px solid #D9B26F;color:#D9B26F;background:transparent;border-radius:99px;padding:4px 12px;font:inherit;font-size:12px;cursor:pointer}.botqb:hover{background:rgba(217,178,111,.15)}
 .botin{display:flex;gap:8px}.botin .fi{flex:1;min-width:0}
@@ -2055,6 +2055,8 @@ html[data-theme=light] .advtb td.up{color:#0F6E4A}html[data-theme=light] .advtb 
     if(text){c.msgs.push({r:'u',t:text,at:now,who:'',sent:true,src:''});c.unread=(c.unread||0)+1;if(!c.info.line){BRANDS.forEach(function(x){if(!c.info.line&&text.toLowerCase().indexOf(x.toLowerCase())>=0)c.info.line=x;});}}
     if(c.human){save();return {sid:sid,step:c.step,msgs:[],human:true,handler:c.handler};}
     var it=!text?'none':PRICE.test(text)?'hoi_gia':WARR.test(text)?'bao_hanh':SHOW.test(text)?'showroom':HUMAN.test(text)?'human':SEEP.test(text)?'cong_trinh':ADV.test(text)?'tu_van':'none',st=c.step||'start',started=st==='start';
+    /* tính trước khi kịch bản đổi trạng thái: câu tự do mà kịch bản chưa hiểu (đang ở bước need, menu hoặc done) */
+    var free=!!text&&it==='none'&&!started&&(st==='need'||st==='menu'||st==='done')&&NEEDS.indexOf(text)<0;
     function again(){var m={need:['hoi_nhu_cau',NEEDS],region:['hoi_khu_vuc',REGIONS],name:['hoi_ten'],contact:['hoi_lien_he'],consent:['dong_y',['Đồng ý','Không đồng ý']]}[st];if(st==='start'||st==='menu'){st='need';m=['hoi_nhu_cau',NEEDS];}if(m)out.push(say(m[0],m[1]));}
     function miss(first){c.miss=(c.miss||0)+1;if(c.miss<2){if(first)out.push(say(first));return;}if(!c.handoff)c.handoff='khong_hieu';out.push(say('chuyen_nguoi'));}
     if(it==='hoi_gia'||it==='bao_hanh'||it==='human')d.asked=true;
@@ -2073,9 +2075,21 @@ html[data-theme=light] .advtb td.up{color:#0F6E4A}html[data-theme=light] .advtb 
       else out.push(say('dong_y',['Đồng ý','Không đồng ý']));}
     else if(st==='done'){S.unanswered.unshift({q:text,at:now,ch:'sandbox'});out.push(say('da_nhan'));}
     else out.push(say('ngoai_kich_ban'));
-    out.forEach(function(m){c.msgs.push({r:'b',t:m.t,at:iso(),who:'',sent:true,src:''});m.d=delay(m.t);if(m.t.indexOf('0947 686 668')>=0)m.tel='0947686668';});
-    c.step=st;c.info.step=st;c.info.handoff=c.handoff||'';save();
-    return {sid:sid,step:st,msgs:out,lead:c.info.lead||'',mood:started?'chao':(st==='done'||st==='closed')?'cam_on':c.miss?'nghi':'',handoff:c.handoff||''};
+    /* Câu tự do mà kịch bản chưa hiểu: nếu đã cấu hình chatbot-worker thì hỏi AI (Claude, Gemini hoặc GPT), kèm nhãn AI. Chưa cấu hình thì giữ nguyên kịch bản. */
+    function finish(){
+      out.forEach(function(m){c.msgs.push({r:'b',t:m.t,at:iso(),who:'',sent:true,src:m.ai?'AI '+m.ai:''});m.d=delay(m.t);if(m.t.indexOf('0947 686 668')>=0)m.tel='0947686668';});
+      c.step=st;c.info.step=st;c.info.handoff=c.handoff||'';save();
+      return {sid:sid,step:st,msgs:out,lead:c.info.lead||'',mood:started?'chao':(st==='done'||st==='closed')?'cam_on':c.miss?'nghi':'',handoff:c.handoff||''};
+    }
+    var W=window.__vkWorker;
+    if(free&&W&&W.enabled()){
+      var hist=c.msgs.slice(0,-1).filter(function(x){return (x.r==='u'||x.r==='b')&&x.t;}).slice(-6).map(function(x){return {role:x.r==='u'?'user':'assistant',content:x.t};});
+      return W.ask(text,hist).then(function(r){
+        if(r&&r.ok&&r.reply){var drop=[say('ngoai_kich_ban').t];if(st==='done')drop.push(say('da_nhan').t);out=out.filter(function(x){return drop.indexOf(x.t)<0;});out.unshift({t:r.reply,b:[],ai:W.names[r.provider]||r.provider});}
+        return finish();
+      });
+    }
+    return finish();
   }
   function feedback(b){var c=null;Object.keys(S.convs).forEach(function(k){if(S.convs[k].sid===String(b.sid||''))c=S.convs[k];});if(!c||c.fb)return bad('Không ghi nhận được đánh giá.');c.fb=1;save();var t=say('cam_on');t.d=1000;return {ok:true,msgs:[t],mood:'cam_on'};}
   function tplOk(t){return !/\[(CHỜ|CẦN)[^\]]*\]/.test(t.text);}
@@ -2095,7 +2109,7 @@ html[data-theme=light] .advtb td.up{color:#0F6E4A}html[data-theme=light] .advtb 
       if(p==='/api/chatbot/leads')return {rows:S.leads};
       if(p==='/api/chatbot/unanswered')return {rows:S.unanswered};
       if(p==='/api/chatbot/suggest'){var cc=S.convs[u.searchParams.get('id')];if(!cc)return bad('Không thấy hội thoại.');return {ok:true,kb:null,templates:Object.keys(S.templates).filter(function(k){return S.templates[k].status==='duyet';}).map(function(k){return {key:k,title:S.templates[k].title,text:S.templates[k].text};})};}
-      if(p==='/api/chatbot/overview'){var ov=clone(DBR['/api/chatbot/overview']);Object.keys(S.channels).forEach(function(k){if(ov.channels[k])ov.channels[k].bot=S.channels[k].bot;});var ks=Object.keys(S.templates);ov.templates={total:ks.length,approved:ks.filter(function(k){return S.templates[k].status==='duyet';}).length};var cv=Object.keys(S.convs).map(function(k){return S.convs[k];});ov.sandbox={convs:cv.length,leads:S.leads.length};ov.unread=0;ov.unanswered=S.unanswered.length;ov.sales=((S.sales||{}).rows||[]).filter(function(r){return r.nm;}).length;return ov;}
+      if(p==='/api/chatbot/overview'){var ov=clone(DBR['/api/chatbot/overview']);if(ov.channels&&!ov.channels.instagram)ov.channels.instagram={label:'Instagram',bot:false,convs:0,leads:0};Object.keys(S.channels).forEach(function(k){if(ov.channels[k])ov.channels[k].bot=S.channels[k].bot;});var ks=Object.keys(S.templates);ov.templates={total:ks.length,approved:ks.filter(function(k){return S.templates[k].status==='duyet';}).length};var cv=Object.keys(S.convs).map(function(k){return S.convs[k];});ov.sandbox={convs:cv.length,leads:S.leads.length};ov.unread=0;ov.unanswered=S.unanswered.length;ov.sales=((S.sales||{}).rows||[]).filter(function(r){return r.nm;}).length;return ov;}
       if(p==='/api/sale'||p==='/api/chatbot/sale')return S.sales;
       if(p==='/api/kenh/status')return S.kenh;
       if(p==='/api/wp/status'){sitesSync();return S.wp;}
@@ -2154,6 +2168,118 @@ html[data-theme=light] .advtb td.up{color:#0F6E4A}html[data-theme=light] .advtb 
     return undefined;
   }
   window.__vkSim={init:init,handle:handle};
+})();
+
+</script>
+<script>
+window.VK_CHAT_WORKER_URL="";
+/* Nối chatbot-worker (Cloudflare Worker, POST /chat) vào bản web xem thử. Nhúng vào index.html bằng build_web.py.
+   - Địa chỉ Worker lấy từ window.VK_CHAT_WORKER_URL (đặt lúc dựng bằng biến môi trường VK_CHAT_WORKER_URL). Để trống thì TẮT hoàn toàn:
+     không vẽ bong bóng, khung chat thử giữ nguyên kịch bản cũ, không gọi mạng.
+   - Không chứa khóa API: khóa nằm ở Worker. Trình duyệt chỉ gửi tin nhắn (tối đa 500 ký tự) và tối đa 6 lượt lịch sử.
+   - Tin có số điện thoại hoặc email bị chặn ngay ở trình duyệt, không gửi đi (ranh đỏ). Worker kiểm lại lần nữa.
+   - Câu trả lời luôn gắn nhãn là AI và chỉ được chèn bằng textContent (không innerHTML). */
+(function () {
+  if (window.__vkWorker) return;
+  var MAX_CHARS = 500, MAX_HIST = 6, TIMEOUT_MS = 30000, K = 'vk_chat_ai';
+  var base = String(window.VK_CHAT_WORKER_URL || '').trim().replace(/\/+$/, '');
+  var urlOk = /^https:\/\/[^\s\/]+(\/[^\s]*)?$/i.test(base) || /^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/i.test(base);
+  var NAMES = { claude: 'Claude', gemini: 'Gemini', gpt: 'GPT' };
+  var PHONE = /(?<!\d)(?:\+?84|0)[\s.\-]?\d{2,3}[\s.\-]?\d{3}[\s.\-]?\d{3,4}(?!\d)/, EMAIL = /[\w.+\-]+@[\w\-]+\.[\w.\-]+/;
+  var HOTLINE = '0947 686 668';
+
+  function provider() { var p = ''; try { p = localStorage.getItem(K) || ''; } catch (e) {} return NAMES[p] ? p : 'claude'; }
+  function setProvider(p) { if (!NAMES[p]) return; try { localStorage.setItem(K, p); } catch (e) {} }
+  function len(s) { return Array.from(s).length; }
+  function stripHot(s) { return s.split(HOTLINE).join('').split(HOTLINE.replace(/ /g, '')).join(''); }
+
+  /* history: [{role:'user'|'assistant', content}], gửi tối đa 6 lượt cuối, mỗi lượt tối đa 500 ký tự */
+  function ask(message, history, prov) {
+    var m = String(message || '').replace(/\s+/g, ' ').trim();
+    if (!urlOk) return Promise.resolve({ ok: false, error: 'Chưa cấu hình địa chỉ Worker.', status: 0 });
+    if (!m) return Promise.resolve({ ok: false, error: 'Anh/chị chưa nhập nội dung.', status: 0 });
+    if (len(m) > MAX_CHARS) return Promise.resolve({ ok: false, error: 'Tin nhắn quá dài (tối đa ' + MAX_CHARS + ' ký tự).', status: 0 });
+    var hist = (history || []).filter(function (h) { return h && (h.role === 'user' || h.role === 'assistant') && h.content; })
+      .slice(-MAX_HIST).map(function (h) { return { role: h.role, content: String(h.content).replace(/\s+/g, ' ').trim().slice(0, MAX_CHARS) }; });
+    var all = stripHot([m].concat(hist.map(function (h) { return h.content; })).join('\n'));
+    if (PHONE.test(all) || EMAIL.test(all)) {
+      return Promise.resolve({ ok: false, status: 0, error: 'Vui lòng không nhập số điện thoại hoặc email trong khung chat này. Tư vấn viên sẽ liên hệ khi anh/chị nhắn Messenger.' });
+    }
+    var p = NAMES[prov] ? prov : provider(), ctl = typeof AbortController === 'function' ? new AbortController() : null, to = ctl ? setTimeout(function () { ctl.abort(); }, TIMEOUT_MS) : null;
+    return fetch(base + '/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: m, provider: p, history: hist }), signal: ctl ? ctl.signal : undefined, credentials: 'omit' })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { r: r, j: j }; }); })
+      .then(function (x) {
+        if (to) clearTimeout(to);
+        var j = x.j || {};
+        if (x.r.ok && j.ok && j.reply) return { ok: true, reply: String(j.reply), provider: j.provider || p, filtered: !!j.filtered, remaining: x.r.headers.get('X-RateLimit-Remaining') };
+        var msg = j.error || ({ 403: 'Trang này chưa được phép gọi trợ lý AI.', 413: 'Yêu cầu quá lớn.', 429: 'Anh/chị đã dùng hết lượt hỏi trong giờ này, vui lòng thử lại sau.' }[x.r.status]) || 'Trợ lý AI đang bận, vui lòng thử lại sau.';
+        return { ok: false, error: msg, status: x.r.status, retryAfter: j.retryAfter };
+      })
+      .catch(function () { if (to) clearTimeout(to); return { ok: false, status: 0, error: 'Không nối được trợ lý AI, vui lòng thử lại sau.' }; });
+  }
+  window.__vkWorker = { enabled: function () { return urlOk; }, ask: ask, provider: provider, setProvider: setProvider, names: NAMES };
+  if (!urlOk) return;
+
+  /* ── bong bóng chat nổi (góc phải, nằm trên bong bóng Cố vấn để không đè lên nhau) ── */
+  var css = '.vkaiw{position:fixed;right:20px;bottom:112px;z-index:850;font:14px/1.45 Arimo,Helvetica,Arial,sans-serif;color:#EEF4FF}' +
+    '.vkaiw *{box-sizing:border-box}.vkaiw button{font:inherit;color:inherit;cursor:pointer}' +
+    '.vkaib{display:flex;align-items:center;gap:8px;height:44px;padding:0 16px;border-radius:22px;border:1px solid rgba(150,190,255,.28);background:#10296A;box-shadow:0 10px 28px -10px rgba(0,10,50,.7)}' +
+    '.vkaib:hover{border-color:#C8A96A}.vkaib svg{width:18px;height:18px}' +
+    '.vkaip{display:none;flex-direction:column;width:360px;max-width:calc(100vw - 32px);height:480px;max-height:calc(100vh - 160px);margin-bottom:10px;border-radius:14px;border:1px solid rgba(150,190,255,.28);background:#0A2260;box-shadow:0 22px 50px -16px rgba(0,10,50,.8);overflow:hidden}' +
+    '.vkaiw.open .vkaip{display:flex}.vkaiw.open .vkaib{display:none}' +
+    '.vkaih{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#10296A;border-bottom:1px solid rgba(150,190,255,.2)}.vkaih b{flex:1;font-weight:700}' +
+    '.vkaih select{height:28px;border-radius:8px;border:1px solid rgba(150,190,255,.28);background:#0A2260;color:#EEF4FF;padding:0 6px}' +
+    '.vkaix{width:28px;height:28px;border-radius:8px;border:1px solid transparent;background:none;font-size:18px;line-height:1}.vkaix:hover{border-color:rgba(150,190,255,.4)}' +
+    '.vkaim{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:8px}' +
+    '.vkaig{max-width:86%;padding:8px 12px;border-radius:12px;white-space:pre-wrap;word-break:break-word}.vkaig.u{align-self:flex-end;background:#B81C35}' +
+    '.vkaig.a{align-self:flex-start;background:#10296A;border:1px solid rgba(150,190,255,.2)}.vkaig.e{align-self:flex-start;background:rgba(224,86,107,.14);border:1px solid rgba(224,86,107,.5)}' +
+    '.vkaig small{display:block;margin-top:4px;font-size:11px;color:#B4C8EA}' +
+    '.vkain{padding:6px 12px;font-size:12px;color:#B4C8EA;border-top:1px solid rgba(150,190,255,.2);background:#0A2260}' +
+    '.vkaif{display:flex;gap:8px;padding:10px 12px;border-top:1px solid rgba(150,190,255,.2);background:#10296A}' +
+    '.vkaif textarea{flex:1;min-width:0;height:40px;resize:none;border-radius:10px;border:1px solid rgba(150,190,255,.28);background:#0A2260;color:#EEF4FF;padding:9px 10px;font:inherit}' +
+    '.vkaif textarea:focus-visible,.vkaiw button:focus-visible,.vkaiw select:focus-visible{outline:2px solid #C8A96A;outline-offset:2px}' +
+    '.vkaif button{width:64px;border-radius:10px;border:0;background:#B81C35;font-weight:700}.vkaif button:disabled{opacity:.5;cursor:default}' +
+    '@media(prefers-reduced-motion:no-preference){.vkaib{transition:border-color .15s}}';
+  var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
+
+  var box = document.createElement('div'); box.className = 'vkaiw';
+  box.innerHTML = '<div class="vkaip" role="dialog" aria-label="Trợ lý AI VinaKIN">' +
+    '<div class="vkaih"><b>Trợ lý AI VinaKIN</b><select id="vkaiSel" aria-label="Chọn AI"><option value="claude">Claude</option><option value="gemini">Gemini</option><option value="gpt">GPT</option></select>' +
+    '<button type="button" class="vkaix" id="vkaiX" aria-label="Đóng">&times;</button></div>' +
+    '<div class="vkaim" id="vkaiM" role="log" aria-live="polite"></div>' +
+    '<div class="vkain">Trợ lý AI, chỉ mang tính tham khảo. Không báo giá. Đừng nhập số điện thoại hay email.</div>' +
+    '<form class="vkaif" id="vkaiF"><textarea id="vkaiI" maxlength="500" rows="1" placeholder="Nhập câu hỏi" aria-label="Câu hỏi"></textarea><button type="submit" id="vkaiS">Gửi</button></form></div>' +
+    '<button type="button" class="vkaib" id="vkaiB" aria-label="Mở trợ lý AI"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>Hỏi trợ lý AI</button>';
+  function mount() { document.body.appendChild(box); init(); }
+  if (document.body) mount(); else document.addEventListener('DOMContentLoaded', mount);
+
+  function init() {
+    var M = box.querySelector('#vkaiM'), I = box.querySelector('#vkaiI'), S = box.querySelector('#vkaiS'), SEL = box.querySelector('#vkaiSel'), hist = [], busy = false;
+    SEL.value = provider();
+    SEL.addEventListener('change', function () { setProvider(SEL.value); });
+    function add(cls, text, note) {
+      var d = document.createElement('div'); d.className = 'vkaig ' + cls; d.textContent = text;
+      if (note) { var s = document.createElement('small'); s.textContent = note; d.appendChild(s); }
+      M.appendChild(d); M.scrollTop = M.scrollHeight; return d;
+    }
+    function open(o) { box.classList.toggle('open', o); if (o) { if (!M.children.length) add('a', 'Xin chào anh/chị, em là trợ lý AI của VinaKIN DOOR. Anh/chị cần hỗ trợ điều gì ạ?', 'Trả lời bởi AI'); I.focus(); } else box.querySelector('#vkaiB').focus(); }
+    box.querySelector('#vkaiB').addEventListener('click', function () { open(true); });
+    box.querySelector('#vkaiX').addEventListener('click', function () { open(false); });
+    box.addEventListener('keydown', function (e) { if (e.key === 'Escape' && box.classList.contains('open')) open(false); });
+    I.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); box.querySelector('#vkaiF').requestSubmit(); } });
+    box.querySelector('#vkaiF').addEventListener('submit', function (e) {
+      e.preventDefault(); if (busy) return;
+      var t = I.value.replace(/\s+/g, ' ').trim(); if (!t) return;
+      var prov = SEL.value; busy = true; S.disabled = true; add('u', t); I.value = '';
+      var wait = add('a', 'Đang soạn câu trả lời...');
+      ask(t, hist, prov).then(function (r) {
+        wait.remove();
+        if (r.ok) { add('a', r.reply, 'Trả lời bởi AI (' + NAMES[r.provider] + ')'); hist.push({ role: 'user', content: t }, { role: 'assistant', content: r.reply }); hist = hist.slice(-MAX_HIST); }
+        else add('e', r.error);
+        busy = false; S.disabled = false; I.focus();
+      });
+    });
+  }
 })();
 
 </script>
@@ -2234,7 +2360,7 @@ html[data-theme=light] .advtb td.up{color:#0F6E4A}html[data-theme=light] .advtb 
       return resp({ok:true,role:'admin'});
     }
     if(p==='/api/logout'){ssSet(LK,null);try{localStorage.removeItem(LK);}catch(e){}return resp({ok:true});}
-    try{var sr=window.__vkSim.handle(p,method,body,u);if(sr!==undefined)return resp(sr);}catch(e){}
+    try{var sr=window.__vkSim.handle(p,method,body,u);if(sr&&typeof sr.then==='function')return sr.then(resp);if(sr!==undefined)return resp(sr);}catch(e){}
     if(method==='GET'||method==='HEAD'){
       if(p==='/api/pages'){var j=JSON.parse(JSON.stringify(DB['/api/pages']));j.tourDone=lsGet('vk_static_tour')==='1';shiftSeries(j);return resp(j);}
       var v=find(u);
@@ -9275,7 +9401,7 @@ function botPhoneDraw(){
   var m=document.getElementById('botMsgs'),q=document.getElementById('botQ');if(!m)return;
   var av=document.getElementById('botAv');if(av)av.src=BOT_AV[BOT.busy?'nghi':BOT.mood]||BOT_AV.chao;
   var done=(BOT.step==='done'||BOT.step==='closed')&&!BOT.busy;
-  m.innerHTML=BOT.chat.map(function(x){return '<div class="botm '+x.r+'">'+esc(x.t).replace(/\n/g,'<br>')+'</div>'+(x.tel?'<a class="btn btn-sm btn-p botcall" href="tel:'+esc(x.tel)+'">Gọi '+esc(String(x.tel).replace(/^(\d{4})(\d{3})(\d{3})$/,'$1 $2 $3'))+'</a>':'');}).join('')+(BOT.busy?'<div class="botm b botdots" aria-label="Trợ lý đang gõ"><i></i><i></i><i></i></div>':'')+(done&&!BOT.fb?'<button type="button" class="btn btn-sm btn-s botfbb" onclick="botFb()">Hài lòng với cuộc trò chuyện</button>':'');m.scrollTop=m.scrollHeight;
+  m.innerHTML=BOT.chat.map(function(x){return '<div class="botm '+x.r+'">'+esc(x.t).replace(/\n/g,'<br>')+'</div>'+(x.ai?'<small class="botai">Trả lời bởi AI ('+esc(x.ai)+')</small>':'')+(x.tel?'<a class="btn btn-sm btn-p botcall" href="tel:'+esc(x.tel)+'">Gọi '+esc(String(x.tel).replace(/^(\d{4})(\d{3})(\d{3})$/,'$1 $2 $3'))+'</a>':'');}).join('')+(BOT.busy?'<div class="botm b botdots" aria-label="Trợ lý đang gõ"><i></i><i></i><i></i></div>':'')+(done&&!BOT.fb?'<button type="button" class="btn btn-sm btn-s botfbb" onclick="botFb()">Hài lòng với cuộc trò chuyện</button>':'');m.scrollTop=m.scrollHeight;
   q.innerHTML=BOT.btns.map(function(b){return '<button type="button" class="botqb" data-b="'+esc(b)+'" onclick="botSend(this.dataset.b)">'+esc(b)+'</button>';}).join('');
 }
 async function botSend(text){
@@ -9284,7 +9410,7 @@ async function botSend(text){
   var j=await botJ('/api/chatbot/sandbox',{sid:BOT.sid,text:t});
   if(j.error){BOT.busy=false;BOT.chat.push({r:'b',t:j.error});botPhoneDraw();return;}
   BOT.btns=[];var ms=j.msgs||[];
-  for(var k=0;k<ms.length;k++){botPhoneDraw();await new Promise(function(r){setTimeout(r,Math.min(2000,ms[k].d||0));});BOT.chat.push({r:'b',t:ms[k].t,tel:ms[k].tel});BOT.btns=ms[k].b||[];}
+  for(var k=0;k<ms.length;k++){botPhoneDraw();await new Promise(function(r){setTimeout(r,Math.min(2000,ms[k].d||0));});BOT.chat.push({r:'b',t:ms[k].t,tel:ms[k].tel,ai:ms[k].ai});BOT.btns=ms[k].b||[];}
   BOT.busy=false;BOT.mood=j.mood||BOT.mood||'chao';BOT.step=j.step||BOT.step;botPhoneDraw();
 }
 function botReset(){BOT.sid='t'+Math.random().toString(36).slice(2,10);BOT.chat=[];BOT.btns=[];BOT.mood='chao';BOT.step='';BOT.fb=false;botPhoneDraw();botSend('');}
