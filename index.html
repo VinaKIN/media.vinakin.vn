@@ -2221,7 +2221,9 @@ html[data-theme=light] .advtb td.up{color:#0F6E4A}html[data-theme=light] .advtb 
     var body={};try{body=init&&init.body?JSON.parse(init.body):{};}catch(e){}
     if(p==='/api/pages'&&method==='GET'&&!isIn())return resp({error:'Cần đăng nhập'},401);
     if(p==='/api/login'&&method==='POST'){
-      var lu=String(body.user||'').trim().toLowerCase(),lp=String(body.password||'');
+      /* bỏ khoảng trắng thừa, ký tự vô hình và chuẩn hóa Unicode: bàn phím điện thoại hay thêm dấu cách sau chữ, dán từ nơi khác hay kèm ký tự lạ */
+      function nz(s){s=String(s||'');try{s=s.normalize('NFC');}catch(e){}return s.replace(/[​-‍⁠﻿ ]/g,' ').trim();}
+      var lu=nz(body.user).toLowerCase(),lp=nz(body.password);
       if(sha256('vk-demo:'+lu+':'+lp)!==DEMO_HASH)return resp({error:'Sai tên đăng nhập hoặc mật khẩu'},401);
       if(body.remember)lsSet(LK,'1');else ssSet(LK,'1');
       return resp({ok:true,role:'admin'});
