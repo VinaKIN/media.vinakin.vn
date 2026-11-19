@@ -24,7 +24,19 @@ if ($clip -match '^[A-Za-z0-9_\-]{35,80}$') {
   if ($use -notmatch '^[Nn]') { $token = $clip }
 }
 $clip = $null
-if (-not $token) { $token = Clean (Read-Secret 'Dán API token, rồi Enter (không hiện chữ, dán xong cứ Enter)') }
+while (-not $token) {
+  Write-Host 'Chưa thấy token Cloudflare trong khay nhớ tạm.' -ForegroundColor Yellow
+  Write-Host 'Sang Chrome (tab "API Tokens | Cloudflare"): bấm nút xanh Create Token, rồi bấm nút Copy cạnh token vừa hiện. Quay lại đây nhấn Enter.'
+  $typed = Clean (Read-Secret 'Nhấn Enter sau khi bấm Copy (hoặc dán token rồi Enter; chữ không hiện)')
+  if ($typed -match '^[A-Za-z0-9_\-]{35,80}$') { $token = $typed }
+  else {
+    $c2 = ''
+    try { $c2 = Clean ((Get-Clipboard -Raw) -as [string]) } catch { $c2 = '' }
+    if ($c2 -match '^[A-Za-z0-9_\-]{35,80}$') { $token = $c2 }
+    $c2 = $null
+  }
+  $typed = $null
+}
 if ($token.Length -lt 20 -or $token -match '\s') { throw ("Token sai dạng (dài {0} ký tự, quá ngắn hoặc có dấu cách). Không làm gì." -f $token.Length) }
 Write-Host ("Đã nhận token dài {0} ký tự." -f $token.Length) -ForegroundColor Green
 $env:CLOUDFLARE_API_TOKEN = $token
@@ -53,6 +65,18 @@ foreach ($name in 'ANTHROPIC_API_KEY', 'GEMINI_API_KEY', 'OPENAI_API_KEY') {
     if ($LASTEXITCODE -ne 0) { Write-Host "Không đặt được $name" -ForegroundColor Red } else { Write-Host "Đã đặt $name" -ForegroundColor Green }
   } else { Write-Host "Bỏ qua $name" }
 }
+Write-Host ''
+Write-Host '== Bước 5: khóa CÔNG KHAI Supabase cho kho catalog (không bắt buộc) ==' -ForegroundColor Cyan
+Write-Host 'Khóa công khai (sb_publishable_...) chỉ gọi được hàm match_catalog, không đọc được bảng. Vào Supabase > project pdf-chatbot-thu > Settings > API Keys,'
+Write-Host 'bấm Copy ở mục "Publishable key", rồi nhấn Enter tại đây. Enter ngay (không copy) để bỏ qua.'
+[void](Read-Host -AsSecureString 'Bấm Copy xong thì nhấn phím Enter (đừng gõ hay dán gì)')
+$pub = ''
+try { $pub = Clean ((Get-Clipboard -Raw) -as [string]) } catch { $pub = '' }
+if ($pub -match '^sb_publishable_\S{20,}$') {
+  $pub | & npx.cmd wrangler secret put SUPABASE_PUBLISHABLE_KEY
+  if ($LASTEXITCODE -ne 0) { Write-Host 'Không đặt được SUPABASE_PUBLISHABLE_KEY' -ForegroundColor Red } else { Write-Host 'Đã đặt SUPABASE_PUBLISHABLE_KEY' -ForegroundColor Green }
+} else { Write-Host 'Khay nhớ tạm không có khóa công khai Supabase, bỏ qua (chatbot trả lời như cũ, chưa có catalog).' }
+$pub = $null
 Remove-Item Env:CLOUDFLARE_API_TOKEN -ErrorAction SilentlyContinue
 Write-Host ''
 Write-Host 'Xong. Chép địa chỉ https://vinakin-chatbot....workers.dev trong phần deploy ở trên gửi cho trợ lý (địa chỉ không bí mật).' -ForegroundColor Green
