@@ -6,8 +6,8 @@ compatibility_date = "2025-06-01"
 # Khóa đặt bằng: npx wrangler secret put ANTHROPIC_API_KEY (và GEMINI_API_KEY, OPENAI_API_KEY)
 [vars]
 # Chỉ các nguồn này được gọi từ trình duyệt (CORS), so khớp chính xác, không dùng dấu *. Nhiều nguồn cách nhau bằng dấu phẩy.
-# media.vinakin.vn là tên miền riêng của trang GitHub Pages (anh Huy duyệt thêm 18/11/2026).
-ALLOWED_ORIGINS = "https://vinakin.github.io,https://media.vinakin.vn"
+# media.vinakin.vn là tên miền riêng của trang GitHub Pages (anh Huy duyệt thêm 18/11/2026). http://media.vinakin.vn thêm 19/11/2026 vì trang chưa bắt buộc HTTPS; có thể bỏ khi đã bật Enforce HTTPS.
+ALLOWED_ORIGINS = "https://vinakin.github.io,https://media.vinakin.vn,http://media.vinakin.vn"
 CLAUDE_MODEL = "claude-haiku-5-5"
 GEMINI_MODEL = "gemini-3.8-flash"
 # Mô hình dự phòng khi Google báo quá tải (503) hoặc giới hạn tốc độ: Worker thử một lần rồi mới báo lỗi.

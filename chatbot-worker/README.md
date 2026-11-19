@@ -9,7 +9,7 @@ Cloudflare Worker nhận `POST /chat`, gọi **Claude** (`claude-haiku-5-5`), **
 | `max_tokens` | **400** cho cả ba nhà cung cấp (`max_tokens`, `maxOutputTokens`, `max_completion_tokens`) |
 | Độ dài tin nhắn | tối đa **500 ký tự** (đếm theo ký tự, không theo byte); lịch sử tối đa 6 lượt, mỗi lượt 500 ký tự; thân yêu cầu tối đa 8 KB (quá thì 413) |
 | Tốc độ | **20 tin mỗi IP mỗi giờ** (cửa sổ 1 giờ tính từ tin đầu tiên). Quá thì 429 kèm `Retry-After`. `provider: "all"` chỉ tính 1 tin nhưng tốn 3 lần gọi AI |
-| CORS | chỉ nguồn trong `ALLOWED_ORIGINS`: `https://vinakin.github.io` và `https://media.vinakin.vn` (đặt ở `wrangler.toml`; mặc định trong mã nếu thiếu biến chỉ là `vinakin.github.io`). So khớp chính xác, không dùng `*`. Nguồn khác hoặc thiếu `Origin` bị 403, không có tiêu đề CORS |
+| CORS | chỉ nguồn trong `ALLOWED_ORIGINS`: `https://vinakin.github.io`, `https://media.vinakin.vn` và `http://media.vinakin.vn` (đặt ở `wrangler.toml`; mặc định trong mã nếu thiếu biến chỉ là `vinakin.github.io`). So khớp chính xác, không dùng `*`. Nguồn khác hoặc thiếu `Origin` bị 403, không có tiêu đề CORS |
 | Khóa API | chỉ đọc từ biến môi trường `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `OPENAI_API_KEY`. **Không có khóa nào trong mã**; bộ kiểm thử quét mã và cấu hình để chắc điều đó |
 | Lỗi nhà cung cấp | chỉ trả thông báo chung (502/503); không trả nội dung lỗi, không ghi khóa hay nội dung tin nhắn vào nhật ký |
 

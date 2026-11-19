@@ -80,11 +80,11 @@ test("ALLOWED_ORIGINS đặt được nhiều nguồn, so khớp chính xác", a
   assert.equal((await post({ message: "xin chào" }, { env, origin: "https://media.vinakin.vn" })).status, 200);
   assert.equal((await post({ message: "xin chào" }, { env, origin: "https://media.vinakin.vn.evil.com" })).status, 403);
 });
-test("wrangler.toml cho phép đúng hai nguồn (vinakin.github.io và media.vinakin.vn), không có dấu *", () => {
+test("wrangler.toml cho phép đúng ba nguồn (vinakin.github.io, https và http của media.vinakin.vn), không có dấu *", () => {
   const toml = readFileSync(join(HERE, "..", "wrangler.toml"), "utf8");
   const m = /^ALLOWED_ORIGINS\s*=\s*"([^"]*)"/m.exec(toml);
   assert.ok(m, "thiếu ALLOWED_ORIGINS");
-  assert.deepEqual(m[1].split(",").map((s) => s.trim()), ["https://vinakin.github.io", "https://media.vinakin.vn"]);
+  assert.deepEqual(m[1].split(",").map((s) => s.trim()), ["https://vinakin.github.io", "https://media.vinakin.vn", "http://media.vinakin.vn"]);
   assert.ok(!m[1].includes("*"));
 });
 test("đường dẫn và phương thức sai", async () => {
