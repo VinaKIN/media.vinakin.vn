@@ -53,6 +53,18 @@ foreach ($name in 'ANTHROPIC_API_KEY', 'GEMINI_API_KEY', 'OPENAI_API_KEY') {
     if ($LASTEXITCODE -ne 0) { Write-Host "Không đặt được $name" -ForegroundColor Red } else { Write-Host "Đã đặt $name" -ForegroundColor Green }
   } else { Write-Host "Bỏ qua $name" }
 }
+Write-Host ''
+Write-Host '== Bước 5: khóa CÔNG KHAI Supabase cho kho catalog (không bắt buộc) ==' -ForegroundColor Cyan
+Write-Host 'Khóa công khai (sb_publishable_...) chỉ gọi được hàm match_catalog, không đọc được bảng. Vào Supabase > project pdf-chatbot-thu > Settings > API Keys,'
+Write-Host 'bấm Copy ở mục "Publishable key", rồi nhấn Enter tại đây. Enter ngay (không copy) để bỏ qua.'
+[void](Read-Host 'Enter')
+$pub = ''
+try { $pub = Clean ((Get-Clipboard -Raw) -as [string]) } catch { $pub = '' }
+if ($pub -match '^sb_publishable_\S{20,}$') {
+  $pub | & npx.cmd wrangler secret put SUPABASE_PUBLISHABLE_KEY
+  if ($LASTEXITCODE -ne 0) { Write-Host 'Không đặt được SUPABASE_PUBLISHABLE_KEY' -ForegroundColor Red } else { Write-Host 'Đã đặt SUPABASE_PUBLISHABLE_KEY' -ForegroundColor Green }
+} else { Write-Host 'Khay nhớ tạm không có khóa công khai Supabase, bỏ qua (chatbot trả lời như cũ, chưa có catalog).' }
+$pub = $null
 Remove-Item Env:CLOUDFLARE_API_TOKEN -ErrorAction SilentlyContinue
 Write-Host ''
 Write-Host 'Xong. Chép địa chỉ https://vinakin-chatbot....workers.dev trong phần deploy ở trên gửi cho trợ lý (địa chỉ không bí mật).' -ForegroundColor Green

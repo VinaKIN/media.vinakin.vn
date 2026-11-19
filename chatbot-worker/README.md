@@ -68,3 +68,31 @@ curl -s https://<tên-worker>.<tài-khoản>.workers.dev/chat \
 npm test          # node --test test/  (24 ca, không gọi mạng)
 ```
 Kiểm: CORS (kể cả tên miền giả `vinakin.github.io.evil.com`), đúng địa chỉ, tiêu đề khóa và `max_tokens 400` của từng nhà cung cấp, giới hạn 500 ký tự và 8 KB, chặn số điện thoại và email, 20 tin mỗi IP mỗi giờ (tin 21 bị 429, IP khác độc lập, hết giờ dùng lại được), lỗi nhà cung cấp không lộ khóa, lọc đầu ra, và quét mã không chứa khóa.
+
+## Kho tri thức catalog (RAG), 19/11/2026
+
+Worker có thể trả lời theo catalog đã công khai (hiện là Romadio R&M-Series) thay vì chỉ nói chung:
+
+1. Câu hỏi của khách được Gemini nhúng (`gemini-embedding-001`, 3072 chiều).
+2. Worker gọi hàm `match_catalog` của Supabase (project `pdf-chatbot-thu`) bằng khóa **công khai** `SUPABASE_PUBLISHABLE_KEY`, lấy tối đa 4 đoạn có độ giống từ 0,6 trở lên.
+3. Các đoạn này vào prompt như nguồn duy nhất cho mã sản phẩm và thông số. Thông số có đơn vị chỉ qua được bộ lọc đầu ra khi chép đúng nguyên văn từ các đoạn đó; giá, so sánh, bảo hành, từ tuyệt đối vẫn bị chặn như trước.
+
+An ninh: khóa công khai chỉ chạy được `match_catalog` (hàm `security definer`, chỉ trả `id, content, metadata, similarity`, tối đa 8 dòng). Đọc thẳng bảng `documents` hoặc gọi `match_documents` bằng khóa này bị Supabase từ chối (401). Khóa quản trị `service_role` không nằm trong Worker.
+
+Tắt tự động: thiếu `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` hoặc `GEMINI_API_KEY` thì Worker trả lời như bản cũ. Gemini hết hạn mức nhúng (gói miễn phí 100 yêu cầu mỗi phút, lỗi 429), Supabase lỗi hay quá thời gian thì cũng trả lời như bản cũ, không báo lỗi cho khách. Truy xuất chạy sau bước giới hạn 20 tin mỗi IP mỗi giờ.
+
+Cập nhật catalog: nạp thêm bằng script trong `ai-pdf-chatbot-langchain-gemini` (chỉ tài liệu đã công khai, không có giá). Đặt khóa: chạy `deploy.cmd`, ở bước 5 bấm Copy khóa công khai rồi nhấn Enter.
+
+Hàm Supabase (chạy một lần trong SQL Editor):
+
+```sql
+create or replace function public.match_catalog (query_embedding vector(3072), match_count int default 4)
+returns table (id bigint, content text, metadata jsonb, similarity float)
+language sql stable security definer set search_path = public, extensions
+as $$
+  select d.id, d.content, d.metadata, 1 - (d.embedding <=> query_embedding) as similarity
+  from public.documents d order by d.embedding <=> query_embedding limit least(coalesce(match_count, 4), 8);
+$$;
+revoke all on function public.match_catalog(vector(3072), int) from public;
+grant execute on function public.match_catalog(vector(3072), int) to anon, authenticated, service_role;
+```

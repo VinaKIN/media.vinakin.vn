@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import worker, { RateLimiter, LIMITS, validate, buildTurns, guardReply } from "../src/index.js";
+import worker, { RateLimiter, LIMITS, validate, buildTurns, guardReply, buildSystem, retrieveContext } from "../src/index.js";
 
 const ORIGIN = "https://vinakin.github.io";
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -37,10 +37,12 @@ function mockUpstream() {
     claude: () => ({ status: 200, body: { content: [{ type: "text", text: "Dạ, em xin chào anh/chị ạ." }] } }),
     gemini: () => ({ status: 200, body: { candidates: [{ content: { parts: [{ text: "Dạ, em xin chào anh/chị ạ." }] } }] } }),
     gpt: () => ({ status: 200, body: { choices: [{ message: { content: "Dạ, em xin chào anh/chị ạ." } }] } }),
+    embed: () => ({ status: 200, body: { embedding: { values: Array.from({ length: 16 }, (_, i) => i / 16) } } }),
+    supabase: () => ({ status: 200, body: [{ id: 1, content: "RW65OU CASEMENT WINDOW OPEN OUT, kính 24 mm", metadata: { loc: { pageNumber: 8 } }, similarity: 0.8 }] }),
   };
   globalThis.fetch = async (url, init) => {
     const u = String(url);
-    const name = u.includes("anthropic") ? "claude" : u.includes("googleapis") ? "gemini" : u.includes("openai") ? "gpt" : null;
+    const name = u.includes("embedContent") ? "embed" : u.includes("supabase.co") ? "supabase" : u.includes("anthropic") ? "claude" : u.includes("googleapis") ? "gemini" : u.includes("openai") ? "gpt" : null;
     assert.ok(name, "yêu cầu ra ngoài tới địa chỉ lạ: " + u);
     calls.push({ name, url: u, headers: Object.fromEntries(new Headers(init.headers)), body: JSON.parse(init.body) });
     const r = upstream[name]();
@@ -331,4 +333,80 @@ test("không có khóa API nào nằm trong mã hay cấu hình (chỉ đọc t�
   const src = readFileSync(join(root, "src", "index.js"), "utf8");
   for (const v of ["ANTHROPIC_API_KEY", "GEMINI_API_KEY", "OPENAI_API_KEY"]) assert.ok(src.includes("env." + v), v + " phải đọc từ env");
   assert.ok(!/(ANTHROPIC|GEMINI|OPENAI)_API_KEY\s*=\s*["'`]/.test(src));
+});
+
+// ── kho tri thức catalog (RAG) ──
+const PUB = "sb_publishable_test-key-0004";
+const ragEnv = (extra = {}) => makeEnv({ SUPABASE_URL: "https://abcdefghij.supabase.co", SUPABASE_PUBLISHABLE_KEY: PUB, ...extra });
+const names = () => calls.map((c) => c.name);
+
+test("RAG tắt khi thiếu cấu hình: không gọi embed hay Supabase, hệ thống prompt như cũ", async () => {
+  const r = await post({ message: "RW65OU là gì?", provider: "gemini" });
+  assert.equal((await r.json()).ok, true);
+  assert.deepEqual(names(), ["gemini"]);
+  assert.ok(!calls[0].body.systemInstruction.parts[0].text.includes("TÀI LIỆU CATALOG"));
+});
+test("RAG bật: nhúng bằng Gemini, gọi match_catalog bằng khóa công khai, đưa đoạn catalog vào prompt", async () => {
+  const r = await post({ message: "RW65OU là gì?", provider: "gemini" }, { env: ragEnv() });
+  const j = await r.json();
+  assert.equal(j.ok, true);
+  assert.deepEqual(names(), ["embed", "supabase", "gemini"]);
+  const [embed, sb, gem] = calls;
+  assert.equal(embed.headers["x-goog-api-key"], KEYS.GEMINI_API_KEY);
+  assert.match(embed.url, /gemini-embedding-001:embedContent/);
+  assert.equal(sb.url, "https://abcdefghij.supabase.co/rest/v1/rpc/match_catalog");
+  assert.equal(sb.headers.apikey, PUB);
+  assert.equal(sb.headers.authorization, "Bearer " + PUB);
+  assert.equal(sb.body.match_count, 4);
+  assert.equal(sb.body.query_embedding.length, 16);
+  const sys = gem.body.systemInstruction.parts[0].text;
+  assert.match(sys, /TÀI LIỆU CATALOG/);
+  assert.match(sys, /trang 8/);
+  assert.match(sys, /RW65OU CASEMENT WINDOW OPEN OUT/);
+  assert.ok(!JSON.stringify(j).includes(PUB), "khóa không được lộ ra phản hồi");
+});
+test("RAG: đoạn có độ giống thấp bị loại, prompt không có mục catalog", async () => {
+  upstream.supabase = () => ({ status: 200, body: [{ id: 2, content: "nội dung không liên quan", metadata: {}, similarity: 0.3 }] });
+  await post({ message: "thời tiết hôm nay", provider: "gemini" }, { env: ragEnv() });
+  assert.ok(!calls.at(-1).body.systemInstruction.parts[0].text.includes("TÀI LIỆU CATALOG"));
+});
+test("RAG: Google hết hạn mức (429) hoặc Supabase lỗi thì vẫn trả lời như bản không catalog", async () => {
+  upstream.embed = () => ({ status: 429, body: { error: { status: "RESOURCE_EXHAUSTED" } } });
+  let r = await post({ message: "RW65OU là gì?", provider: "gemini" }, { env: ragEnv() });
+  assert.equal((await r.json()).ok, true);
+  assert.deepEqual(names(), ["embed", "gemini"]);
+  mockUpstream();
+  upstream.supabase = () => ({ status: 500, body: { message: "boom" } });
+  r = await post({ message: "RW65OU là gì?", provider: "gemini" }, { env: ragEnv() });
+  assert.equal((await r.json()).ok, true);
+  assert.deepEqual(names(), ["embed", "supabase", "gemini"]);
+});
+test("RAG: SUPABASE_URL không phải *.supabase.co thì không gọi gì (chống chuyển hướng khóa)", async () => {
+  const ctx = await retrieveContext(ragEnv({ SUPABASE_URL: "https://evil.example" }), "xin chào");
+  assert.deepEqual(ctx, []);
+  assert.deepEqual(names(), []);
+});
+test("RAG chạy sau giới hạn tốc độ: tin thứ 21 bị 429 và không tốn lượt nhúng", async () => {
+  const env = ragEnv();
+  for (let i = 0; i < LIMITS.RATE_LIMIT; i++) await post({ message: "xin chào", provider: "gemini" }, { env, ip: "198.51.100.9" });
+  const before = calls.filter((c) => c.name === "embed").length;
+  const r = await post({ message: "xin chào", provider: "gemini" }, { env, ip: "198.51.100.9" });
+  assert.equal(r.status, 429);
+  assert.equal(calls.filter((c) => c.name === "embed").length, before);
+});
+test("lọc đầu ra có catalog: thông số chép đúng nguyên văn thì qua, không có trong catalog hoặc có giá thì bị chặn", () => {
+  const ctx = [{ content: "RW65OU CASEMENT WINDOW, kính 24 mm", page: 8 }];
+  assert.equal(guardReply("Dạ, RW65OU dùng kính 24 mm ạ.", ctx).filtered, false);
+  assert.equal(guardReply("Dạ, RW65OU dùng kính 30 mm ạ.", ctx).filtered, true);
+  assert.equal(guardReply("Dạ, RW65OU dùng kính 24 mm ạ.").filtered, true, "không có catalog thì mọi thông số đều bị chặn");
+  assert.equal(guardReply("Dạ, giá 5 triệu một mét vuông ạ.", ctx).filtered, true);
+  assert.equal(guardReply("Dạ, độ bền vượt trội ạ.", ctx).filtered, true);
+});
+test("buildSystem: không đoạn nào thì giữ nguyên quy tắc; có đoạn thì thêm ngoại lệ và vẫn cấm giá", () => {
+  const base = buildSystem([]);
+  assert.ok(!base.includes("TÀI LIỆU CATALOG"));
+  const withCtx = buildSystem([{ content: "RW65OU", page: 8 }]);
+  assert.ok(withCtx.startsWith(base));
+  assert.match(withCtx, /NGOẠI LỆ/);
+  assert.match(withCtx, /cấm tuyệt đối giá/);
 });
