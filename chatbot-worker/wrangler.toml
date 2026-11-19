@@ -15,10 +15,13 @@ GEMINI_MODEL = "gemini-3.5-flash-lite"
 GEMINI_FALLBACK_MODEL = "gemini-flash-lite-latest"
 # Mô hình GPT theo trang Models của OpenAI ngày 19/11/2026 (rẻ nhất). Chưa thử thật: là mô hình suy luận, 400 token có thể bị nuốt.
 OPENAI_MODEL = "gpt-6-luna"
-# Kho tri thuc catalog (RAG, 19/11/2026): Supabase pdf-chatbot-thu, ham match_catalog chay bang khoa CONG KHAI (SUPABASE_PUBLISHABLE_KEY, dat bang wrangler secret).
+# Kho tri thuc catalog (RAG, 19/11/2026): Supabase pdf-chatbot-thu, ham match_catalog chay bang khoa CONG KHAI (SUPABASE_PUBLISHABLE_KEY, dat o duoi, khong phai secret).
 # URL khong bi mat. Thieu mot trong cac bien nay thi Worker tra loi nhu cu (khong catalog).
 SUPABASE_URL = "https://nipimanzkohvnydsxkve.supabase.co"
 GEMINI_EMBED_MODEL = "gemini-embedding-001"
+# Khoa CONG KHAI Supabase (publishable): duoc thiet ke de cong khai, chi goi duoc ham match_catalog (bang documents va match_documents bi chan 401).
+# Dat o day thay vi secret vi buoc nhap qua khay nho tam hay truot. KHONG dat khoa quan tri (secret/service_role) o day.
+SUPABASE_PUBLISHABLE_KEY = "sb_publishable_Or40-QyEhpxw2E8splYvzQ_RpcYw989"
 
 # Chạy Worker gần Singapore thay vì gần người dùng. Lý do: người dùng ở Việt Nam được phục vụ bởi trung tâm dữ liệu Hong Kong (HKG),
 # và Google Gemini API từ chối yêu cầu xuất phát từ Hong Kong (lỗi 400 FAILED_PRECONDITION, "User location is not supported").

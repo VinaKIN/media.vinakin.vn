@@ -57,7 +57,7 @@ Write-Host ''
 Write-Host '== Bước 5: khóa CÔNG KHAI Supabase cho kho catalog (không bắt buộc) ==' -ForegroundColor Cyan
 Write-Host 'Khóa công khai (sb_publishable_...) chỉ gọi được hàm match_catalog, không đọc được bảng. Vào Supabase > project pdf-chatbot-thu > Settings > API Keys,'
 Write-Host 'bấm Copy ở mục "Publishable key", rồi nhấn Enter tại đây. Enter ngay (không copy) để bỏ qua.'
-[void](Read-Host 'Enter')
+[void](Read-Host -AsSecureString 'Bấm Copy xong thì nhấn phím Enter (đừng gõ hay dán gì)')
 $pub = ''
 try { $pub = Clean ((Get-Clipboard -Raw) -as [string]) } catch { $pub = '' }
 if ($pub -match '^sb_publishable_\S{20,}$') {

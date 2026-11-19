@@ -74,14 +74,14 @@ Kiểm: CORS (kể cả tên miền giả `vinakin.github.io.evil.com`), đúng 
 Worker có thể trả lời theo catalog đã công khai (hiện là Romadio R&M-Series) thay vì chỉ nói chung:
 
 1. Câu hỏi của khách được Gemini nhúng (`gemini-embedding-001`, 3072 chiều).
-2. Worker gọi hàm `match_catalog` của Supabase (project `pdf-chatbot-thu`) bằng khóa **công khai** `SUPABASE_PUBLISHABLE_KEY`, lấy tối đa 4 đoạn có độ giống từ 0,6 trở lên.
+2. Worker gọi hàm `match_catalog` của Supabase (project `pdf-chatbot-thu`) bằng khóa **công khai** `SUPABASE_PUBLISHABLE_KEY` (đặt trong `wrangler.toml`; khóa công khai được thiết kế để công khai), lấy tối đa 4 đoạn có độ giống từ 0,6 trở lên.
 3. Các đoạn này vào prompt như nguồn duy nhất cho mã sản phẩm và thông số. Thông số có đơn vị chỉ qua được bộ lọc đầu ra khi chép đúng nguyên văn từ các đoạn đó; giá, so sánh, bảo hành, từ tuyệt đối vẫn bị chặn như trước.
 
 An ninh: khóa công khai chỉ chạy được `match_catalog` (hàm `security definer`, chỉ trả `id, content, metadata, similarity`, tối đa 8 dòng). Đọc thẳng bảng `documents` hoặc gọi `match_documents` bằng khóa này bị Supabase từ chối (401). Khóa quản trị `service_role` không nằm trong Worker.
 
 Tắt tự động: thiếu `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` hoặc `GEMINI_API_KEY` thì Worker trả lời như bản cũ. Gemini hết hạn mức nhúng (gói miễn phí 100 yêu cầu mỗi phút, lỗi 429), Supabase lỗi hay quá thời gian thì cũng trả lời như bản cũ, không báo lỗi cho khách. Truy xuất chạy sau bước giới hạn 20 tin mỗi IP mỗi giờ.
 
-Cập nhật catalog: nạp thêm bằng script trong `ai-pdf-chatbot-langchain-gemini` (chỉ tài liệu đã công khai, không có giá). Đặt khóa: chạy `deploy.cmd`, ở bước 5 bấm Copy khóa công khai rồi nhấn Enter.
+Cập nhật catalog: nạp thêm bằng script trong `ai-pdf-chatbot-langchain-gemini` (chỉ tài liệu đã công khai, không có giá). Đổi khóa công khai: sửa `SUPABASE_PUBLISHABLE_KEY` trong `wrangler.toml` rồi chạy `deploy.cmd` (bước 5 của script chỉ cần cho cách đặt bằng secret, có thể bỏ qua).
 
 Hàm Supabase (chạy một lần trong SQL Editor):
 
