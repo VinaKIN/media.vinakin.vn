@@ -164,6 +164,53 @@ test("nhà cung cấp trả 401 hay lỗi: trả 502 chung chung, không lộ n�
   assert.equal(r.status, 502);
   assert.ok(!t.includes(KEYS.ANTHROPIC_API_KEY) && !t.includes("invalid x-api-key"));
 });
+test("Gemini quá tải (503): thử mô hình dự phòng một lần và trả lời được; lỗi cuối có mã upstream", async () => {
+  const env = makeEnv({ GEMINI_FALLBACK_MODEL: "gemini-flash-lite-latest" });
+  let n = 0;
+  upstream.gemini = () => (++n === 1 ? { status: 503, body: { error: { message: "high demand KHONG_DUOC_LO" } } } : { status: 200, body: { candidates: [{ content: { parts: [{ text: "Dạ, em xin chào anh/chị ạ." }] } }] } });
+  const j = await (await post({ message: "xin chào", provider: "gemini" }, { env })).json();
+  assert.equal(j.ok, true);
+  assert.equal(calls.length, 2);
+  assert.match(calls[0].url, /models\/gemini-3\.8-flash:/);
+  assert.match(calls[1].url, /models\/gemini-flash-lite-latest:/);
+  // cả hai đều 503: dừng ở 2 yêu cầu, trả 502 kèm upstream 503, không lộ nội dung lỗi
+  calls.length = 0; upstream.gemini = () => ({ status: 503, body: { error: { message: "high demand KHONG_DUOC_LO" } } });
+  const r = await post({ message: "xin chào", provider: "gemini" }, { env: makeEnv({ GEMINI_FALLBACK_MODEL: "gemini-flash-lite-latest" }) });
+  const t = await r.text();
+  assert.equal(r.status, 502); assert.equal(calls.length, 2);
+  assert.equal(JSON.parse(t).upstream, 503);
+  assert.match(JSON.parse(t).error, /quá tải/);
+  assert.ok(!t.includes("KHONG_DUOC_LO"));
+});
+test("Gemini lỗi không tạm thời (400, 401, 403, 404) thì KHÔNG thử lại; không có mô hình dự phòng thì chỉ 1 yêu cầu", async () => {
+  for (const code of [400, 401, 403, 404]) {
+    calls.length = 0; upstream.gemini = () => ({ status: code, body: { error: {} } });
+    const r = await post({ message: "xin chào", provider: "gemini" }, { env: makeEnv({ GEMINI_FALLBACK_MODEL: "gemini-flash-lite-latest" }) });
+    assert.equal(r.status, 502, String(code)); assert.equal(calls.length, 1, "mã " + code); assert.equal((await r.json()).upstream, code);
+  }
+  calls.length = 0; upstream.gemini = () => ({ status: 503, body: {} });
+  await post({ message: "xin chào", provider: "gemini" });
+  assert.equal(calls.length, 1, "không đặt GEMINI_FALLBACK_MODEL thì không thử lại");
+});
+test("khóa có xuống dòng hoặc dấu cách thừa vẫn được cắt sạch trước khi gửi (CRLF do ống lệnh PowerShell)", async () => {
+  const env = makeEnv({ GEMINI_API_KEY: "  " + KEYS.GEMINI_API_KEY + "\r\n", ANTHROPIC_API_KEY: KEYS.ANTHROPIC_API_KEY + "\r\n", OPENAI_API_KEY: KEYS.OPENAI_API_KEY + "\n" });
+  await post({ message: "xin chào", provider: "gemini" }, { env });
+  await post({ message: "xin chào", provider: "claude" }, { env });
+  await post({ message: "xin chào", provider: "gpt" }, { env });
+  assert.equal(calls[0].headers["x-goog-api-key"], KEYS.GEMINI_API_KEY);
+  assert.equal(calls[1].headers["x-api-key"], KEYS.ANTHROPIC_API_KEY);
+  assert.equal(calls[2].headers.authorization, "Bearer " + KEYS.OPENAI_API_KEY);
+  // khóa chỉ gồm khoảng trắng thì coi là chưa cấu hình
+  const e2 = makeEnv({ GEMINI_API_KEY: " \r\n" });
+  assert.equal((await post({ message: "xin chào", provider: "gemini" }, { env: e2 })).status, 503);
+});
+test("lỗi nhà cung cấp kèm mã lý do an toàn (reason), không kèm nội dung lỗi", async () => {
+  upstream.gemini = () => ({ status: 400, body: { error: { code: 400, message: "API key not valid KHONG_DUOC_LO " + KEYS.GEMINI_API_KEY, status: "INVALID_ARGUMENT", details: [{ "@type": "x", reason: "API_KEY_INVALID" }] } } });
+  const r = await post({ message: "xin chào", provider: "gemini" }); const t = await r.text(); const j = JSON.parse(t);
+  assert.equal(j.upstream, 400);
+  assert.equal(j.reason, "INVALID_ARGUMENT,API_KEY_INVALID");
+  assert.ok(!t.includes("KHONG_DUOC_LO") && !t.includes(KEYS.GEMINI_API_KEY) && !t.includes("not valid"));
+});
 test("mất kết nối tới nhà cung cấp: 502", async () => {
   globalThis.fetch = async () => { throw new Error("network down " + KEYS.ANTHROPIC_API_KEY); };
   const r = await post({ message: "xin chào" }); const t = await r.text();
@@ -253,6 +300,14 @@ test("lọc câu trả lời: giá, phần trăm, thông số, số điện tho�
   const ok = guardReply("Dạ, anh/chị gọi Hotline 0947 686 668 để được tư vấn thêm ạ.");
   assert.equal(ok.filtered, false);
   assert.equal(guardReply("Dạ, giá phụ thuộc cấu hình nên em xin phép để tư vấn viên liên hệ ạ.").filtered, false, "câu từ chối nói về giá nhưng không có số tiền thì được");
+});
+test("lọc câu trả lời: từ tuyệt đối, so sánh hơn kém, cam kết bị thay bằng câu chuyển tư vấn viên", () => {
+  for (const bad of ["Độ bền vượt trội ạ.", "Sản phẩm hơn hẳn các hệ nhôm thông thường ạ.", "Khả năng cách âm tối ưu ạ.", "Đây là lựa chọn tốt nhất ạ.",
+                     "Thương hiệu hàng đầu ạ.", "Thiết kế hoàn mỹ ạ.", "Em cam kết chất lượng ạ.", "Có bảo hành đầy đủ ạ.", "Khác với đối thủ ạ."]) {
+    const g = guardReply(bad); assert.equal(g.filtered, true, bad); assert.match(g.text, /Hotline 0947 686 668/);
+  }
+  assert.equal(guardReply("Dạ, đây là giải pháp cửa nhôm kính cao cấp châu Âu đồng bộ từ hệ nhôm, phụ kiện đến thi công ạ.").filtered, false);
+  assert.equal(guardReply("Dạ, mỗi dòng sản phẩm có đặc điểm riêng nên em xin phép để tư vấn viên trao đổi cụ thể ạ.").filtered, false);
 });
 test("câu trả lời xấu của AI không tới được khách", async () => {
   upstream.claude = () => ({ status: 200, body: { content: [{ type: "text", text: "Giá chỉ 3 triệu, gọi 0912 345 678 ạ." }] } });

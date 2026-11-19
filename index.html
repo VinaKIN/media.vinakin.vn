@@ -2172,7 +2172,7 @@ html[data-theme=light] .advtb td.up{color:#0F6E4A}html[data-theme=light] .advtb 
 
 </script>
 <script>
-window.VK_CHAT_WORKER_URL="";
+window.VK_CHAT_WORKER_URL="https://vinakin-chatbot.vinakin.workers.dev";window.VK_CHAT_PROVIDERS="gemini";
 /* Nối chatbot-worker (Cloudflare Worker, POST /chat) vào bản web xem thử. Nhúng vào index.html bằng build_web.py.
    - Địa chỉ Worker lấy từ window.VK_CHAT_WORKER_URL (đặt lúc dựng bằng biến môi trường VK_CHAT_WORKER_URL). Để trống thì TẮT hoàn toàn:
      không vẽ bong bóng, khung chat thử giữ nguyên kịch bản cũ, không gọi mạng.
@@ -2184,11 +2184,15 @@ window.VK_CHAT_WORKER_URL="";
   var MAX_CHARS = 500, MAX_HIST = 6, TIMEOUT_MS = 30000, K = 'vk_chat_ai';
   var base = String(window.VK_CHAT_WORKER_URL || '').trim().replace(/\/+$/, '');
   var urlOk = /^https:\/\/[^\s\/]+(\/[^\s]*)?$/i.test(base) || /^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/i.test(base);
-  var NAMES = { claude: 'Claude', gemini: 'Gemini', gpt: 'GPT' };
+  /* Danh sách AI cho phép đặt lúc dựng bằng VK_CHAT_PROVIDERS (vd "gemini"); để trống thì cho cả ba. AI đầu tiên là mặc định. */
+  var ALL = { claude: 'Claude', gemini: 'Gemini', gpt: 'GPT' }, NAMES = {};
+  String(window.VK_CHAT_PROVIDERS || '').split(',').forEach(function (k) { k = k.trim(); if (ALL[k]) NAMES[k] = ALL[k]; });
+  if (!Object.keys(NAMES).length) NAMES = ALL;
+  var DEFAULT_AI = Object.keys(NAMES)[0];
   var PHONE = /(?<!\d)(?:\+?84|0)[\s.\-]?\d{2,3}[\s.\-]?\d{3}[\s.\-]?\d{3,4}(?!\d)/, EMAIL = /[\w.+\-]+@[\w\-]+\.[\w.\-]+/;
   var HOTLINE = '0947 686 668';
 
-  function provider() { var p = ''; try { p = localStorage.getItem(K) || ''; } catch (e) {} return NAMES[p] ? p : 'claude'; }
+  function provider() { var p = ''; try { p = localStorage.getItem(K) || ''; } catch (e) {} return NAMES[p] ? p : DEFAULT_AI; }
   function setProvider(p) { if (!NAMES[p]) return; try { localStorage.setItem(K, p); } catch (e) {} }
   function len(s) { return Array.from(s).length; }
   function stripHot(s) { return s.split(HOTLINE).join('').split(HOTLINE.replace(/ /g, '')).join(''); }
@@ -2244,7 +2248,7 @@ window.VK_CHAT_WORKER_URL="";
 
   var box = document.createElement('div'); box.className = 'vkaiw';
   box.innerHTML = '<div class="vkaip" role="dialog" aria-label="Trợ lý AI VinaKIN">' +
-    '<div class="vkaih"><b>Trợ lý AI VinaKIN</b><select id="vkaiSel" aria-label="Chọn AI"><option value="claude">Claude</option><option value="gemini">Gemini</option><option value="gpt">GPT</option></select>' +
+    '<div class="vkaih"><b>Trợ lý AI VinaKIN</b><select id="vkaiSel" aria-label="Chọn AI"></select>' +
     '<button type="button" class="vkaix" id="vkaiX" aria-label="Đóng">&times;</button></div>' +
     '<div class="vkaim" id="vkaiM" role="log" aria-live="polite"></div>' +
     '<div class="vkain">Trợ lý AI, chỉ mang tính tham khảo. Không báo giá. Đừng nhập số điện thoại hay email.</div>' +
@@ -2255,6 +2259,8 @@ window.VK_CHAT_WORKER_URL="";
 
   function init() {
     var M = box.querySelector('#vkaiM'), I = box.querySelector('#vkaiI'), S = box.querySelector('#vkaiS'), SEL = box.querySelector('#vkaiSel'), hist = [], busy = false;
+    Object.keys(NAMES).forEach(function (k) { var o = document.createElement('option'); o.value = k; o.textContent = NAMES[k]; SEL.appendChild(o); });
+    if (Object.keys(NAMES).length < 2) SEL.style.display = 'none';
     SEL.value = provider();
     SEL.addEventListener('change', function () { setProvider(SEL.value); });
     function add(cls, text, note) {

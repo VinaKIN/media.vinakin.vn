@@ -10,8 +10,15 @@ compatibility_date = "2025-06-01"
 ALLOWED_ORIGINS = "https://vinakin.github.io,https://media.vinakin.vn"
 CLAUDE_MODEL = "claude-haiku-5-5"
 GEMINI_MODEL = "gemini-3.8-flash"
-# Tên mô hình GPT chưa được xác nhận: điền tên mô hình văn bản hiện hành của tài khoản OpenAI trước khi dùng provider gpt.
-# OPENAI_MODEL = "[CẦN XÁC NHẬN]"
+# Mô hình dự phòng khi Google báo quá tải (503) hoặc giới hạn tốc độ: Worker thử một lần rồi mới báo lỗi.
+GEMINI_FALLBACK_MODEL = "gemini-flash-lite-latest"
+# Mô hình GPT theo trang Models của OpenAI ngày 19/11/2026 (rẻ nhất). Chưa thử thật: là mô hình suy luận, 400 token có thể bị nuốt.
+OPENAI_MODEL = "gpt-6-luna"
+
+# Chạy Worker gần Singapore thay vì gần người dùng. Lý do: người dùng ở Việt Nam được phục vụ bởi trung tâm dữ liệu Hong Kong (HKG),
+# và Google Gemini API từ chối yêu cầu xuất phát từ Hong Kong (lỗi 400 FAILED_PRECONDITION, "User location is not supported").
+[placement]
+region = "aws:ap-southeast-1"
 
 # Giới hạn 20 tin nhắn mỗi IP mỗi giờ: mỗi IP một Durable Object (lưu bằng SQLite, dùng được trên gói Free).
 [[durable_objects.bindings]]
