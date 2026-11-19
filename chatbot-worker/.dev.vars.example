@@ -1,0 +1,6 @@
+# Mẫu cho chạy thử cục bộ (wrangler dev). Sao chép thành .dev.vars rồi tự điền khóa. .dev.vars đã nằm trong .gitignore.
+# Khi triển khai thật dùng: npx wrangler secret put <TÊN_BIẾN>. Không dán khóa vào file này hay vào mã.
+ANTHROPIC_API_KEY=
+GEMINI_API_KEY=
+OPENAI_API_KEY=
+OPENAI_MODEL=

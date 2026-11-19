@@ -1,0 +1,15 @@
+{
+  "name": "vinakin-chatbot-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Cloudflare Worker nhận POST /chat, gọi Claude, Gemini hoặc GPT (khóa từ biến môi trường, CORS hẹp, giới hạn 20 tin/IP/giờ)",
+  "scripts": {
+    "test": "node --test test/",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
