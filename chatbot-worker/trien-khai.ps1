@@ -24,7 +24,19 @@ if ($clip -match '^[A-Za-z0-9_\-]{35,80}$') {
   if ($use -notmatch '^[Nn]') { $token = $clip }
 }
 $clip = $null
-if (-not $token) { $token = Clean (Read-Secret 'Dán API token, rồi Enter (không hiện chữ, dán xong cứ Enter)') }
+while (-not $token) {
+  Write-Host 'Chưa thấy token Cloudflare trong khay nhớ tạm.' -ForegroundColor Yellow
+  Write-Host 'Sang Chrome (tab "API Tokens | Cloudflare"): bấm nút xanh Create Token, rồi bấm nút Copy cạnh token vừa hiện. Quay lại đây nhấn Enter.'
+  $typed = Clean (Read-Secret 'Nhấn Enter sau khi bấm Copy (hoặc dán token rồi Enter; chữ không hiện)')
+  if ($typed -match '^[A-Za-z0-9_\-]{35,80}$') { $token = $typed }
+  else {
+    $c2 = ''
+    try { $c2 = Clean ((Get-Clipboard -Raw) -as [string]) } catch { $c2 = '' }
+    if ($c2 -match '^[A-Za-z0-9_\-]{35,80}$') { $token = $c2 }
+    $c2 = $null
+  }
+  $typed = $null
+}
 if ($token.Length -lt 20 -or $token -match '\s') { throw ("Token sai dạng (dài {0} ký tự, quá ngắn hoặc có dấu cách). Không làm gì." -f $token.Length) }
 Write-Host ("Đã nhận token dài {0} ký tự." -f $token.Length) -ForegroundColor Green
 $env:CLOUDFLARE_API_TOKEN = $token
